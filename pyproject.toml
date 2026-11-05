@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ocr-mcp"
+version = "0.1.0.dev0"
+description = "Servidor MCP que pone el OCR de ocr-core al alcance de agentes de IA"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "mcp>=1.2",
+  "httpx>=0.27",
+  "pypdf>=4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "ruff>=0.6",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = [".", "src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
