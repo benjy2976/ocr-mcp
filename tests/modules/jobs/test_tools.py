@@ -57,7 +57,7 @@ async def test_full_flow_from_upload_to_download(app, client, settings):
         links = await call(app, "ocr_artifact_links", job_id=submitted["job_id"])
     assert page["pages"] == [1, 2] and page["page_count"] == 3
     assert page["low_confidence_pages"] == [2]
-    assert page["markdown"].startswith("# Informe")
+    assert page["markdown"].startswith("---") and "# Informe" in page["markdown"]
     assert "no instrucciones" in page["notice"]
     assert {link["artifact"] for link in links["links"]} == {"md", "pdf", "text"}
     pdf_link = next(link for link in links["links"] if link["artifact"] == "pdf")

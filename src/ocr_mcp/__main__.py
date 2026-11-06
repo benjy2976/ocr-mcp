@@ -46,7 +46,12 @@ def _serve(env_file: Path | None) -> int:
     except (ConfigError, OSError) as error:
         print(f"ocr-mcp: {error}", file=sys.stderr)
         return 2
-    uvicorn.run(build(settings), host=settings.host, port=settings.port, proxy_headers=True)
+    tls = (
+        {"ssl_certfile": str(settings.tls_cert), "ssl_keyfile": str(settings.tls_key)}
+        if settings.tls_cert
+        else {}
+    )
+    uvicorn.run(build(settings), host=settings.host, port=settings.port, proxy_headers=True, **tls)
     return 0
 
 

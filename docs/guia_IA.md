@@ -34,10 +34,13 @@ detectan solos: el índice de abajo es la referencia.
 
 ## Estado del proyecto
 
-El servidor está implementado y probado contra un core simulado: OAuth 2.1 con
-claves por usuario, las cinco herramientas, enlaces de subida y descarga,
-cuotas, modo público, estadísticas y panel `/admin`. Falta probarlo contra un
-core real y con cada cliente (ver "Pendientes conocidos").
+El servidor está implementado: OAuth 2.1 con claves por usuario, las cinco
+herramientas, enlaces de subida y descarga, cuotas, modo público, estadísticas
+y panel `/admin`. Las pruebas automáticas usan un core simulado; además se
+probó de punta a punta contra un `ocr-core` 0.7.0 real con el cliente MCP
+oficial (OAuth, las cinco herramientas, descargas y aislamiento entre
+usuarios), el 2026-11-06. Falta verificarlo con cada cliente de uso diario
+(ver "Pendientes conocidos").
 
 Al leer cualquier documento, distinguir lo implementado (con evidencia
 ejecutable), lo aprobado sin implementar y lo pendiente.
@@ -95,7 +98,7 @@ plantillas del servidor dentro de sus módulos, no una raíz frontend.
 | --- | --- | --- |
 | Elegir la licencia libre del repo | Autor | Publicar el repo |
 | Dirección pública de `ocr-core`; hoy se genera desde el repositorio `ocr-lab` | Autor | Publicar el repo |
-| Probar el servidor contra un `ocr-core` real y con Claude Code | Agente y autor | Marcar el servidor como listo para uso |
+| Conectar Claude Code y usarlo con documentos propios | Autor | Marcar el servidor como listo para uso |
 | Verificar con cada cliente los ejemplos de `docs/integracion-con-clientes.md` | Agente y autor | Marcar la guía como vigente |
 
 ## Errores comunes al usar la memoria

@@ -53,7 +53,9 @@ devuelve sus páginas a la cuota.
    usuario. Prueba: `test_the_same_pdf_from_two_users_creates_two_jobs`.
 5. `ocr_status` espera hasta 50 s, consultando cada 2 s.
 6. `ocr_read_markdown` devuelve como máximo 60.000 caracteres por llamada,
-   cortando en límites de página, e indica las páginas de baja confianza.
+   cortando en límites de página, e indica las páginas de baja confianza. La
+   primera página lleva además el encabezado YAML del artefacto (esquema y
+   conteos) y el título.
 7. Un PDF que ya tenía texto no se ofrece como artefacto: el original sirve
    como PDF buscable. Prueba: `test_a_pdf_that_already_had_text_is_not_offered_again`.
 8. El registro guarda conteos y la huella del pedido, nunca nombres de archivo

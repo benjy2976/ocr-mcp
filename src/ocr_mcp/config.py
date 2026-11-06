@@ -37,6 +37,9 @@ class Settings:
     link_ttl: int = 1800
     max_upload_bytes: int | None = None
     max_pages: int | None = None
+    # TLS directo, para publicar en una red local sin proxy (decisión 0008).
+    tls_cert: Path | None = None
+    tls_key: Path | None = None
 
     @property
     def resource_url(self) -> str:
@@ -71,6 +74,7 @@ class Settings:
                 "OCR_MCP_ADMIN_PASSWORD_HASH no tiene el formato esperado; "
                 "generarlo con `ocr-mcp hash-password`"
             )
+        tls_cert, tls_key = _tls(env, public_url)
         prefixes = tuple(
             _url(item, "OCR_MCP_ALLOWED_URL_PREFIXES")
             for item in env.get("OCR_MCP_ALLOWED_URL_PREFIXES", "").split(",")
@@ -91,7 +95,27 @@ class Settings:
             link_ttl=_int(env, "OCR_MCP_LINK_TTL_MIN", 30) * 60,
             max_upload_bytes=_optional_int(env, "OCR_MCP_MAX_UPLOAD_BYTES"),
             max_pages=_optional_int(env, "OCR_MCP_MAX_PAGES"),
+            tls_cert=tls_cert,
+            tls_key=tls_key,
         )
+
+
+def _tls(env: Mapping[str, str], public_url: str) -> tuple[Path | None, Path | None]:
+    cert = env.get("OCR_MCP_TLS_CERT", "").strip()
+    key = env.get("OCR_MCP_TLS_KEY", "").strip()
+    if not cert and not key:
+        return None, None
+    if not (cert and key):
+        raise ConfigError("OCR_MCP_TLS_CERT y OCR_MCP_TLS_KEY van juntas")
+    if not public_url.startswith("https://"):
+        raise ConfigError("Con TLS, OCR_MCP_PUBLIC_URL debe usar https")
+    paths = []
+    for name, value in (("OCR_MCP_TLS_CERT", cert), ("OCR_MCP_TLS_KEY", key)):
+        path = Path(value).expanduser()
+        if not path.is_file():
+            raise ConfigError(f"{name} no apunta a un archivo existente")
+        paths.append(path)
+    return paths[0], paths[1]
 
 
 def _url(value: str, name: str) -> str:

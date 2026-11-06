@@ -52,6 +52,26 @@ def test_unsafe_values_stop_the_server(name, value):
         Settings.from_env(environment(**{name: value}))
 
 
+def test_tls_needs_both_files_and_an_https_public_url(tmp_path):
+    cert, key = tmp_path / "servidor.crt", tmp_path / "servidor.key"
+    cert.write_text("certificado")
+    key.write_text("llave")
+    https = {"OCR_MCP_PUBLIC_URL": "https://ocr.ejemplo.lan:18040"}
+    loaded = Settings.from_env(
+        environment(**https, OCR_MCP_TLS_CERT=str(cert), OCR_MCP_TLS_KEY=str(key))
+    )
+    assert loaded.tls_cert == cert and loaded.tls_key == key and loaded.secure_cookies
+    with pytest.raises(ConfigError, match="van juntas"):
+        Settings.from_env(environment(**https, OCR_MCP_TLS_CERT=str(cert)))
+    with pytest.raises(ConfigError, match="debe usar https"):
+        Settings.from_env(environment(OCR_MCP_TLS_CERT=str(cert), OCR_MCP_TLS_KEY=str(key)))
+    with pytest.raises(ConfigError, match="no apunta"):
+        Settings.from_env(
+            environment(**https, OCR_MCP_TLS_CERT=str(cert), OCR_MCP_TLS_KEY=str(tmp_path / "x"))
+        )
+    assert Settings.from_env(environment()).tls_cert is None
+
+
 def test_https_public_urls_and_prefixes():
     settings = Settings.from_env(
         environment(

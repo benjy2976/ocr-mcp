@@ -10,6 +10,7 @@ el servidor con un mensaje que nunca incluye secretos.
 | --- | --- | --- |
 | Desarrollo | Escribir y probar el código | Entorno virtual de Python, con el core simulado de las pruebas |
 | Uso local | Usarlo desde la propia máquina | `ocr-mcp serve` o el contenedor, en `127.0.0.1`, contra un `ocr-core` accesible |
+| Red local | Ofrecerlo a las máquinas de una red | `ocr-mcp serve` con TLS directo (`OCR_MCP_TLS_CERT` y `OCR_MCP_TLS_KEY`, decisión 0008) |
 | En línea | Ofrecerlo a otros | Contenedor detrás de un proxy inverso con TLS (`OCR_MCP_PUBLIC_URL` con `https`) |
 
 ## Requisitos
@@ -43,6 +44,7 @@ el servidor con un mensaje que nunca incluye secretos.
 | `OCR_MCP_LINK_TTL_MIN` | `30` | Vigencia de los enlaces de subida y descarga, en minutos |
 | `OCR_MCP_MAX_UPLOAD_BYTES` | sin valor | Tamaño máximo propio por documento; rige el menor entre este y el del core (decisión 0005) |
 | `OCR_MCP_MAX_PAGES` | sin valor | Páginas máximas propias por documento |
+| `OCR_MCP_TLS_CERT` y `OCR_MCP_TLS_KEY` | sin valor | Certificado y llave para servir HTTPS sin proxy; van juntas y exigen `OCR_MCP_PUBLIC_URL` con `https` (decisión 0008) |
 
 `OCR_MCP_PUBLIC_URL` solo admite `http` en `127.0.0.1`, `localhost` o `[::1]`;
 en cualquier otra dirección exige `https`, como OAuth.

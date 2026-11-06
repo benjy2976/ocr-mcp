@@ -31,7 +31,8 @@ ocr-mcp serve [--env-file RUTA]
 
 Lee la configuración de `docs/entorno.md`, aplica las migraciones pendientes y
 sirve en `OCR_MCP_HOST:OCR_MCP_PORT` con uvicorn (`--proxy-headers`, para
-conocer la dirección real del cliente detrás de un proxy).
+conocer la dirección real del cliente detrás de un proxy). Con
+`OCR_MCP_TLS_CERT` y `OCR_MCP_TLS_KEY` sirve HTTPS directamente (decisión 0008).
 
 | Código | Significado | Acción |
 | --- | --- | --- |

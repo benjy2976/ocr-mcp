@@ -20,8 +20,9 @@ def test_the_title_goes_with_the_first_page_and_low_confidence_is_flagged():
     piece = select(markdown(4, "Acta"), "2-3", 10_000)
     assert piece.pages == [2, 3] and piece.page_count == 4
     assert piece.low_confidence_pages == [2]
-    assert "# Acta" not in piece.markdown
-    assert select(markdown(4, "Acta"), "1", 10_000).markdown.startswith("# Acta")
+    assert "# Acta" not in piece.markdown and "schema:" not in piece.markdown
+    first = select(markdown(4, "Acta"), "1", 10_000).markdown
+    assert first.startswith("---") and "# Acta" in first
 
 
 def test_long_text_is_cut_at_page_boundaries():

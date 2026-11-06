@@ -17,6 +17,7 @@ agente por su cuenta.
 | [0005](0005-sin-limites-propios-por-defecto.md) | Sin límites propios por defecto; manda el límite del core | vigente |
 | [0006](0006-claves-de-acceso-oauth-y-panel-de-admin.md) | Acceso con una clave por usuario, OAuth 2.1 incluido y un panel mínimo de admin | vigente |
 | [0007](0007-cuotas-modo-publico-y-estadisticas.md) | Cuotas por clave, modo público opcional y estadísticas de uso | vigente |
+| [0008](0008-tls-directo-para-redes-locales.md) | TLS directo en el servidor para publicarlo en una red local | vigente |
 
 ## Reglas
 

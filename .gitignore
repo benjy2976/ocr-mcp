@@ -4,6 +4,9 @@
 # Configuración local: puede contener el token.
 .env
 
+# Estado local del servidor (SQLite y subidas temporales) con OCR_MCP_DATA_DIR=./datos.
+/datos/
+
 # Python
 .venv/
 __pycache__/

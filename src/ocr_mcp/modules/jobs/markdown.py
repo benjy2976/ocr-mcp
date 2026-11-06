@@ -2,7 +2,8 @@
 
 El artefacto marca cada página con `<!-- ocr-page: N -->` y las de baja
 confianza con `<!-- ocr-quality: low-confidence -->`. El texto anterior a la
-primera marca (el título) acompaña a la primera página.
+primera marca (el encabezado YAML con el esquema y los conteos, y el título)
+acompaña a la primera página.
 """
 
 from __future__ import annotations

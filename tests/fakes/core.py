@@ -129,8 +129,21 @@ class FakeCore:
 
 
 def markdown(pages: int, title: str | None) -> str:
-    """Mismo formato que el artefacto real; la página 2 sale de baja confianza."""
-    lines = [f"# {title or 'documento'}", ""]
+    """Mismo formato que el artefacto real: encabezado YAML, título y una marca por página.
+
+    La página 2 sale de baja confianza.
+    """
+    low = "[2]" if pages >= 2 else "[]"
+    lines = [
+        "---",
+        'schema: "ocr.markdown.document.v1"',
+        f"page_count: {pages}",
+        f"low_confidence_pages: {low}",
+        "---",
+        "",
+        f"# {title or 'documento'}",
+        "",
+    ]
     for page in range(1, pages + 1):
         lines += [f"<!-- ocr-page: {page} -->", f"## Página {page}", ""]
         if page == 2:

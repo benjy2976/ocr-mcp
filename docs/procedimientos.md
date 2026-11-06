@@ -58,6 +58,98 @@ apuntar a una dirección del core alcanzable desde él (por ejemplo, el nombre
 del servicio en una red de Docker compartida). El estado queda en el volumen
 `ocr-mcp-data`; respaldarlo conserva las claves y el uso.
 
+## Publicar en una red local
+
+Para que las máquinas de una red usen el servidor. OAuth exige HTTPS fuera de
+`127.0.0.1`, así que el servidor sirve HTTPS por sí mismo (decisión 0008). En
+los ejemplos, el equipo tiene la IP `192.0.2.10`; se reemplaza por la real.
+Claude Desktop y claude.ai no sirven en una red local: se conectan desde la
+nube del proveedor.
+
+### 1. Certificado con una CA local
+
+Una vez, en el equipo del servidor y en una carpeta fuera del repo:
+
+```bash
+mkdir -p ~/ocr-mcp-tls && cd ~/ocr-mcp-tls && umask 077
+# CA local: su certificado (ca.crt) se instala en cada cliente; ca.key no sale de aquí.
+openssl req -x509 -newkey rsa:3072 -sha256 -days 3650 -nodes \
+  -keyout ca.key -out ca.crt -subj "/CN=ocr-mcp CA local"
+# Certificado del servidor para su IP (y su nombre, si la red tiene DNS).
+openssl req -newkey rsa:2048 -sha256 -nodes \
+  -keyout servidor.key -out servidor.csr -subj "/CN=192.0.2.10"
+printf "subjectAltName=IP:192.0.2.10,DNS:ocr-mcp.lan\nextendedKeyUsage=serverAuth\n" > servidor.ext
+openssl x509 -req -in servidor.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+  -days 825 -sha256 -extfile servidor.ext -out servidor.crt
+```
+
+Si la organización tiene su propia CA, se usa un certificado emitido por ella y
+este paso se omite.
+
+### 2. Configuración
+
+En el `.env` del servidor:
+
+```bash
+OCR_MCP_HOST=0.0.0.0
+OCR_MCP_PORT=18040
+OCR_MCP_PUBLIC_URL=https://192.0.2.10:18040
+OCR_MCP_TLS_CERT=/ruta/a/ocr-mcp-tls/servidor.crt
+OCR_MCP_TLS_KEY=/ruta/a/ocr-mcp-tls/servidor.key
+```
+
+Todos los clientes usan exactamente la URL de `OCR_MCP_PUBLIC_URL` (la misma IP
+o el mismo nombre que figura en el certificado): el servidor rechaza peticiones
+MCP dirigidas a otro nombre. Los tokens emitidos con la URL anterior dejan de
+valer, porque están atados a ella; las claves de acceso siguen sirviendo, así
+que cada cliente vuelve a iniciar sesión con su misma clave.
+
+### 3. Abrir el puerto
+
+- **Linux:** permitir el puerto 18040 en el firewall del equipo (por ejemplo,
+  `sudo ufw allow 18040/tcp`).
+- **Windows con WSL2 en modo NAT** (WSL tiene su propia IP interna, que se ve
+  con `hostname -I` dentro de WSL y cambia al reiniciar): en PowerShell como
+  administrador, reenviar el puerto y abrirlo en el firewall:
+
+  ```powershell
+  $wsl = (wsl hostname -I).Split(" ")[0]
+  netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=18040 connectaddress=$wsl connectport=18040
+  New-NetFirewallRule -DisplayName "ocr-mcp" -Direction Inbound -Protocol TCP -LocalPort 18040 -Action Allow
+  ```
+
+  El reenvío se repite tras cada reinicio de WSL (con el `netsh … add` de
+  nuevo, que reemplaza el anterior) y se retira con
+  `netsh interface portproxy delete v4tov4 listenaddress=0.0.0.0 listenport=18040`.
+  Con el reenvío, el servidor ve todas las conexiones como del propio equipo:
+  el límite de intentos por dirección se vuelve compartido.
+- **Windows 11 con WSL2 en modo reflejado** (`networkingMode=mirrored` en
+  `.wslconfig`): no hace falta el reenvío, solo la regla del firewall.
+
+### 4. Arrancar y comprobar
+
+```bash
+.venv/bin/ocr-mcp serve --env-file .env
+# desde otra máquina de la red, con el ca.crt copiado:
+curl --cacert ca.crt https://192.0.2.10:18040/health
+```
+
+### 5. Conectar cada cliente
+
+1. Copiar `ca.crt` a la máquina y confiar en él:
+   - Claude Code y otros clientes de Node.js: `export NODE_EXTRA_CA_CERTS=/ruta/a/ca.crt`
+     antes de abrirlos (por ejemplo, en el perfil de la shell);
+   - el navegador, para la página de la clave: importar `ca.crt` como autoridad
+     de confianza en el sistema o en el navegador.
+2. Agregar el servidor con su URL, por ejemplo
+   `claude mcp add --transport http ocr https://192.0.2.10:18040/mcp`, e iniciar
+   sesión con una clave creada en `https://192.0.2.10:18040/admin`.
+
+El panel `/admin` queda accesible desde toda la red: lo protegen la contraseña
+del admin y el límite de intentos. Con una contraseña larga y la red de
+confianza, alcanza; si no, conviene limitar el puerto en el firewall a las
+máquinas que lo necesitan.
+
 ## Términos prohibidos
 
 El repo no puede contener nombres de instituciones, terceros, equipos ni rutas

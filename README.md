@@ -6,9 +6,9 @@ entre otros. El agente sube un PDF por un enlace. El servidor lo envía al core
 y le devuelve el texto en Markdown, por páginas, y enlaces para descargar el
 PDF buscable, el texto y el Markdown.
 
-> **Estado:** implementado y probado contra un core simulado. Falta probarlo
-> contra un `ocr-core` real y con cada cliente (`docs/guia_IA.md`, "Pendientes
-> conocidos").
+> **Estado:** implementado y probado de punta a punta contra un `ocr-core`
+> 0.7.0 real con el cliente MCP oficial. Falta verificarlo con cada cliente de
+> uso diario (`docs/guia_IA.md`, "Pendientes conocidos").
 
 ## Cómo funciona
 
@@ -93,8 +93,11 @@ por defecto: manda el límite del core
 (`docs/decisiones/0005-sin-limites-propios-por-defecto.md`). Las cuotas por
 usuario se fijan en el panel.
 
-Para ponerlo en línea: `OCR_MCP_PUBLIC_URL` con `https` y un proxy inverso con
-TLS delante. Quien lo publica lo opera.
+Para ofrecerlo a toda una red local, el servidor puede servir HTTPS por sí
+mismo con un certificado de una CA local; el paso a paso está en
+[`docs/procedimientos.md`](docs/procedimientos.md), "Publicar en una red local".
+Para ponerlo en internet: `OCR_MCP_PUBLIC_URL` con `https` y un proxy inverso
+con TLS delante. Quien lo publica lo opera.
 
 ## Conectar un cliente
 
