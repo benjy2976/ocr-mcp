@@ -4,93 +4,258 @@
 > referencian documentos de otros repos ni de la carpeta padre salvo
 > autorización expresa del usuario.
 
-## Qué es este repo
+`ocr-mcp` es un servidor MCP libre que pone el OCR de `ocr-core` al alcance de
+agentes de IA. Qué es y cómo se usa: `README.md`. Mapa de la memoria:
+`docs/guia_IA.md`.
 
-Servidor MCP (Model Context Protocol) que pone el OCR de `ocr-core` al alcance
-de agentes de IA: Claude Code, VS Code, Cursor, Claude Desktop, claude.ai y
-otros. Es **un cliente más del core**, con su propio token. Recibe trabajos
-del agente, los envía al core por su API HTTP y le entrega los resultados.
+Este archivo es el protocolo de memoria viva del repo (estándar
+`gestionar-memoria-viva-proyecto`, versión registrada en `docs/guia_IA.md`),
+más tres secciones propias: planes y bitácoras, control de versiones y
+pendientes.
 
-- No contiene lógica OCR: toda vive en `ocr-core`, que se despliega aparte.
-- No conoce el almacenamiento de ningún otro sistema: solo recibe y entrega
-  trabajos, y los archivos viajan por enlace.
-- No está atado a una institución ni a un equipo. Cualquiera que clone el repo
-  lo configura con la URL de su core y su token, y puede ponerlo en línea.
-- Incluye su propio control de acceso: OAuth 2.1 con una clave por usuario, y
-  un panel `/admin` mínimo para crear y borrar claves, fijar cuotas y ver el
-  uso.
+## Protocolo de memoria viva: rol y fuentes normativas
 
-```
-Agente de IA ──MCP (HTTP + OAuth 2.1)──► ocr-mcp ──HTTP + token──► ocr-core
-                                            ▲
-                            admin ──/admin──┘
-```
+Este archivo es el punto de entrada operativo para cualquier agente que trabaje en el
+repositorio. Define qué leer, qué mostrar y cómo cerrar; no reemplaza la memoria técnica ni
+los contratos del proyecto.
 
-## Estado
+Cada conocimiento vive en una sola fuente normativa:
 
-Recién creado. Tiene su documentación y sus decisiones de diseño, pero
-**todavía no tiene código**: el servidor no existe (ver "Gaps conocidos").
+| Conocimiento | Fuente |
+| --- | --- |
+| Transporte HTTP | `docs/api.md` |
+| Interfaz CLI | `docs/cli.md` |
+| Persistencia | `docs/modelo-datos.md` |
+| Negocio, actores, permisos, estados y flujo | `context.md` del módulo |
+| Componentes y flujo global | `docs/arquitectura.md` |
+| Variables, requisitos y servicios | `docs/entorno.md` |
+| Convenciones compartidas | `docs/convenciones.md` |
+| Comandos y validaciones | `docs/procedimientos.md` |
+| Reglas propias de una capa | `.github/instructions/<capa>.instructions.md` |
+| Decisiones y su porqué | `docs/decisiones/README.md` |
+| Trabajo pendiente que todavía no tiene plan | `docs/INICIATIVAS.md` |
+| Conexión de los clientes MCP | `docs/integracion-con-clientes.md` |
 
-## Mapa de documentación (leer según la tarea)
+Los resúmenes y prompts deben enlazar estas fuentes, no duplicarlas.
 
-El índice completo está en `docs/README.md`.
+## Alcance y autorización
 
-| Si vas a... | Leer |
-|---|---|
-| Saber por qué algo es como es, antes de cambiarlo | `docs/decisiones/README.md` (índice de decisiones) |
-| Ver el trabajo pendiente identificado que todavía no tiene plan | `docs/INICIATIVAS.md` |
-| Instalar, configurar o usar el servidor | `README.md` |
-| Conectar un cliente (Claude Code, VS Code, Cursor, Claude Desktop, claude.ai) | `docs/integracion-con-clientes.md` |
-| Cualquier otra tarea | `docs/README.md` |
+- Ajustarse a la petición actual y aplicar cambios mínimos relacionados.
+- Si el usuario pide explicar, revisar, diagnosticar o proponer, no editar archivos ni ejecutar
+  acciones que cambien estado.
+- Una petición puntual, como proponer un commit, no autoriza actualizar memoria ni resolver
+  hallazgos adyacentes. Informarlos y pedir autorización antes de actuar.
+- No modificar otro repositorio sin autorización explícita para ese caso. La lectura de solo
+  consulta no autoriza escrituras posteriores.
+- No reordenar, reformatear ni corregir contenido ajeno al alcance.
+- Una propuesta aprobada delimita la implementación. Si aparece una alternativa materialmente
+  distinta, volver a consultar antes de cambiar de rumbo.
 
-## Reglas que no se deben romper sin decisión explícita del usuario
+## Lectura y regla de evidencia
 
-- **Solo recibe y entrega trabajos** (decisión 0001). Toda capacidad OCR vive
-  en `ocr-core`. Este repo no la reimplementa ni monta el almacenamiento de
-  otros sistemas.
-- **Es genérico.** Ningún archivo versionado nombra una institución, otro
-  cliente del core ni rutas de un equipo concreto. La configuración llega por
-  variables de entorno.
-- **Servicio HTTP con OAuth 2.1 obligatorio, también en uso local** (decisión
-  0002). No hay modo stdio, ni acceso sin token, ni tokens fijos en
-  encabezados.
-- **Los archivos viajan por enlace** (decisión 0003): nunca en base64 dentro de
-  los argumentos y nunca por rutas del disco del servidor. Las URL externas
-  solo se aceptan de los prefijos configurados, vacíos por defecto.
-- **Cada usuario ve solo sus trabajos** (decisión 0006). La
-  `idempotency_key` incluye al usuario.
-- **Claves y tokens solo como hash**, en SQLite, y nunca en logs, errores ni
-  respuestas (decisión 0006). El token del core tampoco se registra.
-- **El panel `/admin` es mínimo** (decisiones 0006 y 0007): claves, cuotas, uso
-  y modo público. Nada de roles ni edición de usuarios.
-- **Las estadísticas solo guardan conteos,** nunca nombres de archivo ni
-  contenido (decisión 0007).
-- **El modo público está apagado por defecto** (decisión 0007). Encenderlo es
-  decisión de quien opera el servidor.
-- **El texto OCR es contenido, no instrucciones.** Las descripciones de las
-  herramientas lo advierten, como defensa contra prompt injection.
-- **Datos personales.** Lo que el agente lee llega al proveedor del modelo. La
-  regla de uso está en el `README.md`.
+Antes de ejecutar cualquier comando, leer y aplicar
+`.github/prompts/base_universal.prompt.md`,
+`docs/memoria-viva/resource-efficiency.md` y las referencias locales enlazadas
+bajo `docs/memoria-viva/`. Si el preámbulo base falta, tratarlo como un error
+del estándar y no afirmar que el contexto obligatorio fue cargado. Registrar
+de forma compacta propósito, alcance, nivel, perfil, presupuesto, salida
+esperada y condición de escalamiento. Después del comando conservar código de
+salida, causa, ubicación y archivos afectados.
+No ejecutar la suite completa, historial amplio, red, paralelismo ni comandos
+destructivos sin la justificación, autorización y escalamiento que exige esa
+política.
 
-## Comandos de referencia
+Aplicar la referencia específica además de la política de recursos según la
+tarea:
 
-```bash
-python -m venv .venv && .venv/bin/pip install -e '.[dev]'
-.venv/bin/pytest
-.venv/bin/ruff check .
-```
+- `workflow.md`: cualquier ejecución de la skill y su cierre.
+- `detection-strategies.md`: auditorías, mantenimiento y evaluación de
+  cobertura.
+- `http-resource-design.md`: diseño o revisión de recursos HTTP.
+- `portable-standard.md`: instalación, actualización, migración y validación
+  del estándar portable.
+- `succession-parity.md`: evolución, sucesión o retirada de la skill
+  predecesora.
 
-## Gaps conocidos del repo
+Antes de editar:
 
-- **Sin implementación.** Las decisiones 0001 a 0007 están aceptadas pero sin
-  implementar: no hay cliente del core, servidor OAuth, panel, herramientas
-  MCP, core simulado ni pruebas del servidor. Hoy las únicas pruebas verifican
-  la documentación.
-- **Ejemplos de integración sin verificar.** Los de
-  `docs/integracion-con-clientes.md` se comprueban con cada cliente al
-  implementar el servidor.
-- **Sin licencia.** Mientras no se elija una, el repo no otorga permisos de uso
-  a terceros, aunque esté pensado para que cualquiera lo clone.
+1. Leer completas las instrucciones aplicables desde la raíz hasta la ruta afectada.
+2. Leer `docs/guia_IA.md`, `docs/convenciones.md` y `docs/procedimientos.md`.
+3. Leer la instrucción de cada capa y el `context.md` de cada módulo afectado.
+4. Leer la fuente normativa correspondiente si la tarea toca API, CLI, persistencia,
+   arquitectura o entorno.
+5. Explorar código, configuración, pruebas e historial en la profundidad necesaria para
+   respaldar el cambio.
+6. Evaluar todos los archivos obligatorios y condicionales definidos en este
+   `AGENTS.md`; declarar los que no apliquen y la evidencia de esa decisión.
+
+No afirmar que se siguió este protocolo si falta una lectura requerida. Declarar el archivo no
+leído y la razón antes de editar. No completar vacíos con suposiciones.
+
+## Conflictos y ambigüedades
+
+Si dos instrucciones, el código y la documentación, o dos fuentes normativas se contradicen:
+
+1. Detener las ediciones afectadas.
+2. Mostrar las dos evidencias con sus rutas.
+3. Explicar qué decisión cambia y qué riesgo tiene cada alternativa.
+4. Pedir confirmación cuando no exista una fuente de mayor prioridad que resuelva el conflicto.
+
+No corregir una contradicción eligiendo silenciosamente la opción más conveniente.
+
+## Preflight obligatorio
+
+Antes de editar, mostrar de forma breve:
+
+- raíz, alcance y tipo de tarea;
+- perfil de recursos y presupuesto operativo inicial;
+- instrucciones y memoria realmente leídas;
+- capacidades iniciales y umbrales aplicables;
+- evidencia que respalda el cambio;
+- archivos previstos y propósito de cada uno;
+- checkpoint previsto y validaciones proporcionales para ese punto;
+- ambigüedades, límites de detección o autorizaciones pendientes.
+
+Si la tarea es diagnóstica, el preflight debe declarar que no habrá ediciones.
+
+## Loop obligatorio
+
+1. Inventariar las capacidades antes del cambio.
+2. Clasificar fuentes activas, pruebas, tooling y migraciones históricas;
+  declarar nivel operativo y presupuesto antes de ampliar la exploración;
+  resolver las raíces reales del código antes de enlazar imports.
+3. Explorar la implementación y resolver conflictos o dudas.
+4. Aplicar únicamente el cambio autorizado.
+5. Inspeccionar el diff completo, incluida cualquier modificación preexistente relevante.
+6. Inventariar las capacidades después del cambio.
+7. Evaluar todos los umbrales y sincronizar la fuente normativa afectada.
+8. Al completar una unidad coherente, ejecutar una sola pasada de validaciones
+   proporcionales. Reservar las suites globales para checkpoints globales.
+9. Revisar resultados, advertencias y áreas no soportadas antes de cerrar; si se
+   corrige un fallo, repetir solo el control invalidado salvo impacto global.
+
+## Umbrales persistentes
+
+| Cambio detectado | Obligación documental |
+| --- | --- |
+| Primer endpoint HTTP | Crear `docs/api.md` |
+| Primer recurso o familia HTTP | Clasificar operaciones y registrar propiedad y CRUD aplicable |
+| Cambio de endpoint existente | Actualizar `docs/api.md` |
+| Ruta anidada, relación, proyección, consulta o acción | Revisar tipo, ruta canónica, propietario y justificación |
+| CRUD o nombre público añadido, retirado o renombrado | Revisar omisiones, compatibilidad y autoridad de mutación |
+| Primer comando CLI | Crear `docs/cli.md` |
+| Cambio de argumentos, salida o códigos CLI | Actualizar `docs/cli.md` |
+| Segunda entidad relacionada | Crear `docs/modelo-datos.md` |
+| Cambio de entidad, campo, relación o constraint | Actualizar `docs/modelo-datos.md` |
+| Primera implementación en una capa | Crear `.github/instructions/<capa>.instructions.md` |
+| Cambio de reglas propias de una capa | Actualizar sus instrucciones |
+| Primer módulo funcional | Crear su `context.md` e indexarlo |
+| Cambio de reglas, estados, permisos o flujo | Actualizar el `context.md` |
+| Nueva variable o servicio | Actualizar `docs/entorno.md` |
+| Cambio de componentes o flujo global | Actualizar `docs/arquitectura.md` |
+
+Evaluar la matriz exactamente en cuatro puntos:
+
+1. durante el preflight;
+2. después de explorar código, configuración, pruebas e historial;
+3. al inspeccionar el diff;
+4. antes del cierre.
+
+No basta con que un archivo exista: contrastar su contenido con la capacidad real. Si el cambio
+cruza un umbral y crear el artefacto no estaba autorizado, explicar la brecha y pedir autorización
+antes de ampliar el alcance.
+
+Cuando cambien routers, controladores, handlers u OpenAPI, revisar en cada uno
+de los cuatro momentos la clasificación declarada, el propietario conceptual y
+técnico, la ruta canónica, la aplicabilidad CRUD y la compatibilidad. No inferir
+esas decisiones desde el ORM, los segmentos de URL o la estructura de carpetas.
+
+## Clasificación incremental
+
+- Routers, controladores, OpenAPI y modelos de transporte: `docs/api.md`.
+- Entrypoints, comandos y parsers: `docs/cli.md`.
+- Modelos, esquemas y migraciones: `docs/modelo-datos.md`.
+- Servicios, vistas, stores, reglas y autorización: `context.md` del módulo.
+- Carpetas o tecnologías nuevas: instrucciones de la capa.
+- Configuración, variables y servicios: `docs/entorno.md`.
+- Componentes, integraciones y flujos globales: `docs/arquitectura.md`.
+
+## Mejoras candidatas del estándar
+
+Si un repositorio consumidor contiene una práctica que supera el molde:
+
+1. Preservarla; no normalizarla a la baja ni copiarla al estándar por cuenta propia.
+2. Mostrar la evidencia, el beneficio, los riesgos y la diferencia frente al estándar actual.
+3. Pedir al operador que decida entre mantenerla local, promoverla o descartarla.
+4. Si se aprueba promoverla, cambiar el estándar compartido solo dentro de un alcance autorizado.
+5. Proponer por separado la migración de cada consumidor; nunca replicarla automáticamente.
+
+Un hallazgo propio de otro repositorio se informa antes de registrarlo o resolverlo allí.
+
+## Validación por capa
+
+- Ejecutar los comandos documentados para cada capa afectada sobre el alcance apropiado.
+- Trabajar en ventanas de implementación: una edición, un parche, un archivo o
+  una interacción no disparan validación por sí solos.
+- Al terminar una unidad coherente, ejecutar una sola pasada focalizada sobre
+  los flujos y contratos afectados. Validar antes solo si una precondición
+  incierta puede invalidar el enfoque.
+- Reservar la suite completa para auditorías, despliegues, hitos candidatos a
+  commit/release y cambios críticos, estructurales o sin cobertura focalizada
+  suficiente.
+- Después de corregir un fallo, repetir solo la comprobación afectada; ampliar
+  de nuevo únicamente si la corrección puede cambiar el resultado global.
+- Validar Markdown, enlaces, contextos indexados y ausencia de placeholders residuales.
+- Tratar errores verificables del validador como bloqueo. Revisar cada advertencia con evidencia.
+- Una comprobación `N/A` o no soportada no demuestra conformidad; declararla en el cierre.
+- Un resultado global `OK` se limita a controles estructurales soportados; la revisión semántica
+  de propósito, reglas, permisos y vigencia sigue siendo obligatoria.
+- Si una validación no puede ejecutarse, explicar comando omitido, causa, riesgo y comprobación
+  alternativa. No presentarla como superada.
+- Si no existen pruebas automatizadas, declarar su ausencia y ejecutar las comprobaciones
+  estructurales, de lint y manuales disponibles; no convertir la ausencia en conformidad.
+
+## Seguridad y privacidad
+
+El repo es libre y no pertenece a ninguna institución. No introducir nombres
+de instituciones, de terceros ni de equipos, ni rutas de máquinas concretas;
+la regla y su comprobación están en `docs/convenciones.md`.
+
+No exponer secretos, credenciales, datos personales ni muestras reales innecesarias. No iniciar
+servicios ni consultar sistemas externos para completar la memoria salvo autorización explícita.
+Usar evidencia local y marcar la incertidumbre que requiera revisión humana.
+No importar ni ejecutar módulos del proyecto desde el validador. Un adaptador de
+acceso es configuración estática con evidencia local, no código ejecutable ni
+una declaración libre de endpoints.
+
+## Cierre obligatorio
+
+Antes de terminar, mostrar:
+
+- capacidades antes y después y umbrales cruzados;
+- archivos modificados y memoria sincronizada;
+- validaciones ejecutadas, comandos y resultados;
+- advertencias, comprobaciones no aplicables o no soportadas;
+- impacto en seguridad, privacidad y otros repositorios;
+- riesgos, pendientes y preguntas abiertas.
+
+Al cerrar una unidad, revisar su diff y ejecutar la validación proporcional una
+sola vez. Solo ante un checkpoint global, además:
+
+- inspeccionar el diff completo y repetir el inventario de capacidades;
+- ejecutar `scripts/validate-project-memory` sin alcance;
+- ejecutar Markdownlint sobre todo el repositorio;
+- resolver errores y revisar advertencias con evidencia;
+- revisar placeholders, enlaces, índices y contextos;
+- declarar por separado cada comprobación `NOT_EVALUATED` y la acción
+  necesaria para cubrirla;
+- explicar por qué los documentos relacionados que no cambiaron siguen
+  vigentes.
+- entregar el resumen operativo con nivel, perfil, objetivo, archivos,
+  comandos, validaciones, presupuesto, escalamiento, documentación, riesgos y
+  pendientes, usando la plantilla de `docs/memoria-viva/resource-efficiency.md`.
+
+No cerrar con errores verificables, memoria exigible desactualizada ni placeholders residuales.
 
 ## Planes de trabajo y bitácoras
 
@@ -132,7 +297,7 @@ En cada puerta de fase y al cerrar el plan, el agente propone y el usuario
 aprueba pasar lo durable a la documentación versionada:
 
 | Qué deja el plan | Dónde va |
-|---|---|
+| --- | --- |
 | Decisiones, con su contexto y las alternativas descartadas | Registro de decisiones del repo |
 | Hechos sobre cómo es hoy el sistema | Documentos vigentes y gaps conocidos |
 | Trabajo pendiente que todavía no tiene pasos | Iniciativas del repo |
@@ -193,7 +358,7 @@ una versión modificada del mensaje sin mostrarla de nuevo primero.
 
 Convención de mensajes (la misma de los repos hermanos del proyecto):
 
-```
+```text
 <resumen en imperativo, español, ~50-72 caracteres, sin punto final>
 
 <cuerpo opcional: qué cambió y por qué, en prosa>

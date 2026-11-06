@@ -14,6 +14,12 @@ from pathlib import Path
 from tests.test_documentation_independence import REPOSITORY, _text, _versioned_files
 
 SELF = Path(__file__).resolve().relative_to(REPOSITORY).as_posix()
+# Copias literales del estándar de memoria viva: sus ejemplos son genéricos y
+# no son rutas de este repo. Se mantienen iguales a las de la skill.
+EXCLUDED_PREFIXES = ("docs/memoria-viva/",)
+# Fuentes condicionales: el protocolo las cita antes de que nazcan, al cruzar su
+# umbral (docs/guia_IA.md, "Fuentes condicionales todavía inexistentes").
+CONDITIONAL_DOCS = {"docs/api.md", "docs/cli.md", "docs/modelo-datos.md", "docs/frontend.md"}
 
 MARKDOWN_LINK = re.compile(r"\]\(([^)\s]+)\)")
 EXTERNAL_TARGET = re.compile(r"^(?:[a-z][a-z0-9+.-]*:|#|/)")
@@ -26,7 +32,11 @@ RELATIVE_PATH = re.compile(r"`((?:\.\.?/)+[^`\s<>*]+)`")
 
 
 def _checked_files() -> list[str]:
-    return [relative for relative in _versioned_files() if relative != SELF]
+    return [
+        relative
+        for relative in _versioned_files()
+        if relative != SELF and not relative.startswith(EXCLUDED_PREFIXES)
+    ]
 
 
 def _resolver():
@@ -84,7 +94,7 @@ def test_cited_docs_paths_exist():
             continue
         for number, line in enumerate(text.splitlines(), start=1):
             for match in DOCS_PATH.finditer(line):
-                if not exists(match.group(0)):
+                if match.group(0) not in CONDITIONAL_DOCS and not exists(match.group(0)):
                     missing.append(f"{relative}:{number}: {match.group(0)}")
     assert not missing, "Rutas docs/ que no existen:\n" + "\n".join(missing)
 

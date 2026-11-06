@@ -11,7 +11,7 @@ PDF buscable, el texto y el Markdown.
 
 ## Cómo funciona
 
-```
+```text
 Agente de IA ──MCP (HTTP + OAuth 2.1)──► ocr-mcp ──HTTP + token──► ocr-core
                                             ▲
                             admin ──/admin──┘  (claves, cuotas y uso)
@@ -37,7 +37,7 @@ Agente de IA ──MCP (HTTP + OAuth 2.1)──► ocr-mcp ──HTTP + token─
 ## Herramientas previstas
 
 | Herramienta | Qué hace |
-|---|---|
+| --- | --- |
 | `ocr_upload_link` | Entrega un enlace de subida de un solo uso: `PUT` desde una terminal o formulario en el navegador |
 | `ocr_submit` | Crea el trabajo con un PDF ya subido (o una URL permitida) y devuelve el `job_id`, el estado y las páginas |
 | `ocr_status` | Consulta el estado y puede esperar hasta 50 segundos a que termine |
@@ -47,7 +47,8 @@ Agente de IA ──MCP (HTTP + OAuth 2.1)──► ocr-mcp ──HTTP + token─
 ## Requisitos
 
 - Python 3.11 o posterior, o Docker.
-- Un `ocr-core` 0.7.0 o posterior, accesible por HTTP.
+- Un `ocr-core` 0.7.0 o posterior, accesible por HTTP. Se genera desde el
+  repositorio `ocr-lab`, que contiene su fuente y su empaquetado.
 - Un token de cliente para ese core. Se genera junto con su hash:
 
   ```bash
@@ -57,21 +58,12 @@ Agente de IA ──MCP (HTTP + OAuth 2.1)──► ocr-mcp ──HTTP + token─
   El token es secreto y va en el `.env` del servidor MCP. El hash se entrega a
   quien opera el core, que lo registra como cliente `mcp`.
 
-## Configuración prevista
+## Configuración
 
-Los nombres son los previstos y se confirman al implementarlos.
-
-| Variable | Por defecto | Qué es |
-|---|---|---|
-| `OCR_CORE_URL` | (obligatoria) | Dirección del core, por ejemplo `http://127.0.0.1:18012` |
-| `OCR_CORE_TOKEN` | (obligatoria) | Token de este servidor ante el core. Nunca se registra |
-| `OCR_MCP_PUBLIC_URL` | (obligatoria) | URL con la que los clientes llegan al servidor; con ella se construyen los metadatos OAuth y los enlaces |
-| `OCR_MCP_HOST` y `OCR_MCP_PORT` | `127.0.0.1` y `18040` | Dirección de escucha. En línea, detrás de un proxy con TLS |
-| `OCR_MCP_DATA_DIR` | (obligatoria) | Carpeta de la base SQLite: claves, tokens, cuotas y uso, solo con hashes |
-| `OCR_MCP_ADMIN_USER` | (obligatoria) | Usuario del panel `/admin` |
-| `OCR_MCP_ADMIN_PASSWORD_HASH` | (obligatoria) | Hash de la contraseña del admin; el comando para generarlo se documenta al implementarlo |
-| `OCR_MCP_ALLOWED_URL_PREFIXES` | vacío (apagado) | Prefijos de URL que el servidor puede descargar |
-| Vigencias | 1 h, 30 días y 30 min | Del token de acceso, del token de refresco y de los enlaces |
+Por variables de entorno: la dirección y el token del core, la URL pública,
+la carpeta de datos, el usuario y la contraseña del admin, y las URL
+permitidas. La lista completa, con sus valores por defecto, está en
+[`docs/entorno.md`](docs/entorno.md).
 
 Los límites por documento (tamaño y páginas) son opcionales y no tienen valor
 por defecto: manda el límite del core
@@ -106,6 +98,7 @@ python -m venv .venv && .venv/bin/pip install -e '.[dev]'
 .venv/bin/ruff check .
 ```
 
-La documentación está indexada en [`docs/README.md`](docs/README.md). Las
-reglas para agentes de IA que trabajen en el repo están en
-[`AGENTS.md`](AGENTS.md).
+Los procedimientos completos, incluida la validación de la memoria, están en
+[`docs/procedimientos.md`](docs/procedimientos.md). El mapa de la
+documentación está en [`docs/guia_IA.md`](docs/guia_IA.md), y las reglas para
+agentes de IA que trabajen en el repo, en [`AGENTS.md`](AGENTS.md).

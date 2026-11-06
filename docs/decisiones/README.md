@@ -9,7 +9,7 @@ agente por su cuenta.
 ## Índice
 
 | # | Decisión | Estado |
-|---|---|---|
+| --- | --- | --- |
 | [0001](0001-cliente-generico-que-solo-recibe-y-entrega-trabajos.md) | Un cliente genérico de `ocr-core` que solo recibe y entrega trabajos | aceptada, sin implementar |
 | [0002](0002-servicio-http-con-oauth-obligatorio.md) | Un servicio HTTP con OAuth 2.1 obligatorio, también en uso local | aceptada, sin implementar |
 | [0003](0003-archivos-por-enlace.md) | Los archivos viajan por enlace: subida de un solo uso y descarga que vence | aceptada, sin implementar |

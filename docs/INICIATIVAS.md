@@ -5,7 +5,7 @@ describe el problema y lo que se sabe; cuando se decide abordarla, se planifica
 y, al cerrarla, lo durable pasa a las decisiones y a la documentación vigente.
 
 | Iniciativa | Estado |
-|---|---|
+| --- | --- |
 | [Herramientas adicionales](#herramientas-adicionales) | Solo si el uso lo pide |
 | [Tareas largas de MCP](#tareas-largas-de-mcp) | Espera soporte de los clientes |
 | [Proveedor de identidad externo](#proveedor-de-identidad-externo) | Sin iniciar |
