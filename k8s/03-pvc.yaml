@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ocr-mcp-data-pvc
+  namespace: ocr-service
+  labels:
+    app.kubernetes.io/name: ocr-mcp
+    app.kubernetes.io/part-of: ocr-platform
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 10Gi

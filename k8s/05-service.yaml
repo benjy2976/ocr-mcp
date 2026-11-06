@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ocr-mcp
+  namespace: ocr-service
+  labels:
+    app.kubernetes.io/name: ocr-mcp
+    app.kubernetes.io/part-of: ocr-platform
+spec:
+  type: ClusterIP
+  ports:
+    - port: 18040
+      targetPort: 18040
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: ocr-mcp

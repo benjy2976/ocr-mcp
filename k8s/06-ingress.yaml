@@ -1,0 +1,96 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ocr-mcp-ingress
+  namespace: ocr-service
+  labels:
+    app.kubernetes.io/name: ocr-mcp
+    app.kubernetes.io/part-of: ocr-platform
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: ocr-core.regionhuanuco.gob.pe
+      http:
+        paths:
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: ocr-mcp
+                port:
+                  number: 18040
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: ocr-mcp
+                port:
+                  number: 18040
+          - path: /login
+            pathType: Prefix
+            backend:
+              service:
+                name: ocr-mcp
+                port:
+                  number: 18040
+          - path: /u
+            pathType: Prefix
+            backend:
+              service:
+                name: ocr-mcp
+                port:
+                  number: 18040
+          - path: /d
+            pathType: Prefix
+            backend:
+              service:
+                name: ocr-mcp
+                port:
+                  number: 18040
+          - path: /.well-known
+            pathType: Prefix
+            backend:
+              service:
+                name: ocr-mcp
+                port:
+                  number: 18040
+          - path: /authorize
+            pathType: Prefix
+            backend:
+              service:
+                name: ocr-mcp
+                port:
+                  number: 18040
+          - path: /token
+            pathType: Prefix
+            backend:
+              service:
+                name: ocr-mcp
+                port:
+                  number: 18040
+          - path: /register
+            pathType: Prefix
+            backend:
+              service:
+                name: ocr-mcp
+                port:
+                  number: 18040
+          - path: /revoke
+            pathType: Prefix
+            backend:
+              service:
+                name: ocr-mcp
+                port:
+                  number: 18040
+  tls:
+    - hosts:
+        - ocr-core.regionhuanuco.gob.pe
+      secretName: ocr-core-tls

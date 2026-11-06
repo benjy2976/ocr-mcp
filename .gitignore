@@ -18,3 +18,7 @@ __pycache__/
 .ruff_cache/
 build/
 dist/
+
+# Kubernetes secrets con valores reales
+/k8s/01-secret.yaml
+
