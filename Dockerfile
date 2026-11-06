@@ -18,5 +18,7 @@ RUN pip install --no-cache-dir . \
 USER ocrmcp
 VOLUME ["/data"]
 EXPOSE 18040
-HEALTHCHECK --interval=30s --timeout=3s CMD python -c "import urllib.request,os; urllib.request.urlopen(f'http://127.0.0.1:{os.environ[\"OCR_MCP_PORT\"]}/health', timeout=2)"
+# La sonda habla con el propio contenedor: con TLS (decisión 0008) usa https sin
+# verificar el certificado, que puede no incluir 127.0.0.1.
+HEALTHCHECK --interval=30s --timeout=3s CMD ["python", "-c", "import os, ssl, urllib.request; tls = bool(os.environ.get('OCR_MCP_TLS_CERT')); scheme = 'https' if tls else 'http'; context = ssl._create_unverified_context() if tls else None; urllib.request.urlopen(f\"{scheme}://127.0.0.1:{os.environ['OCR_MCP_PORT']}/health\", timeout=2, context=context)"]
 CMD ["ocr-mcp", "serve"]

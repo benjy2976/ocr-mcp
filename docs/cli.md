@@ -49,7 +49,7 @@ necesita al menos 12 caracteres.
 ocr-mcp hash-password
 # Contraseña del admin: ••••••••••••
 # Repítela: ••••••••••••
-# scrypt$16384$8$1$…
+# scrypt:16384:8:1:…
 ```
 
 | Código | Significado |

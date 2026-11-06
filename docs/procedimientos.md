@@ -150,6 +150,52 @@ del admin y el límite de intentos. Con una contraseña larga y la red de
 confianza, alcanza; si no, conviene limitar el puerto en el firewall a las
 máquinas que lo necesitan.
 
+### Con Docker
+
+El mismo resultado, con el servidor en un contenedor que arranca solo con
+Docker. Lo propio de cada equipo va en `docker-compose.override.yml`, junto a
+`docker-compose.yml`; ese archivo no se versiona (`.gitignore`) y Compose lo
+aplica solo. Ejemplo, con el certificado del paso 1 y el core en otra red de
+Docker del mismo equipo:
+
+```yaml
+services:
+  ocr-mcp:
+    user: "1000:1000"                 # dueño de los datos y del certificado en el equipo
+    environment:
+      OCR_CORE_URL: http://<nombre-del-core>:8000
+      OCR_MCP_PUBLIC_URL: https://192.0.2.10:18040
+      OCR_MCP_TLS_CERT: /tls/servidor.crt
+      OCR_MCP_TLS_KEY: /tls/servidor.key
+    ports: !override
+      - "0.0.0.0:18040:18040"
+    volumes: !override
+      - ./datos:/data                 # o el volumen ocr-mcp-data
+      - /ruta/a/ocr-mcp-tls:/tls:ro
+    networks: [default, core]
+networks:
+  core:
+    external: true
+    name: <red-del-core>
+```
+
+```bash
+docker compose up -d --build
+curl --cacert /ruta/a/ocr-mcp-tls/ca.crt https://192.0.2.10:18040/health
+```
+
+- El `.env` sigue siendo la base; `environment` del override manda sobre él.
+  Dentro del contenedor, `127.0.0.1` es el propio contenedor: el core se
+  alcanza por su nombre en la red de Docker que comparten.
+- Con **Docker Desktop** (Windows o macOS), el puerto publicado queda en la IP
+  del equipo: no hace falta el reenvío del paso 3, solo la regla del firewall si
+  Windows no la crea. Con Docker dentro de WSL2 sin Docker Desktop, el reenvío
+  sigue siendo necesario.
+- El contenedor ve las conexiones como de Docker, así que el límite de intentos
+  por dirección se comparte entre todos los clientes.
+- `docker compose down` lo detiene; `restart: unless-stopped` lo vuelve a
+  levantar con Docker.
+
 ## Términos prohibidos
 
 El repo no puede contener nombres de instituciones, terceros, equipos ni rutas

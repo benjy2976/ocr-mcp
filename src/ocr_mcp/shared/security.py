@@ -10,6 +10,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import hmac
+import re
 import secrets
 
 TOKEN_BYTES = 32
@@ -36,12 +37,16 @@ def same(left: str, right: str) -> bool:
 
 
 def hash_password(password: str) -> str:
+    """`scrypt:n:r:p:sal:hash`. Sin `$`: Docker Compose y las shells lo interpretan."""
     salt = secrets.token_bytes(16)
     digest = hashlib.scrypt(password.encode("utf-8"), salt=salt, **_SCRYPT)
-    return "scrypt${n}${r}${p}${salt}${digest}".format(
-        **_SCRYPT,
-        salt=base64.b64encode(salt).decode(),
-        digest=base64.b64encode(digest).decode(),
+    return ":".join(
+        [
+            "scrypt",
+            *(str(_SCRYPT[name]) for name in ("n", "r", "p")),
+            base64.b64encode(salt).decode(),
+            base64.b64encode(digest).decode(),
+        ]
     )
 
 
@@ -59,7 +64,8 @@ def verify_password(password: str, encoded: str) -> bool:
 
 
 def _parse_password_hash(encoded: str) -> tuple[int, int, int, bytes, bytes] | None:
-    parts = encoded.split("$")
+    # Acepta también el formato anterior, separado por `$`.
+    parts = re.split(r"[:$]", encoded.strip())
     if len(parts) != 6 or parts[0] != "scrypt":
         return None
     try:

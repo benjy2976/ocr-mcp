@@ -21,6 +21,13 @@ def test_passwords_are_salted_and_verified():
     assert not is_password_hash("texto-en-claro") and not verify_password("x", "texto-en-claro")
 
 
+def test_password_hashes_avoid_dollar_signs_and_accept_the_old_format():
+    encoded = hash_password("una contraseña larga")
+    assert "$" not in encoded and encoded.startswith("scrypt:")
+    old_format = encoded.replace(":", "$")
+    assert is_password_hash(old_format) and verify_password("una contraseña larga", old_format)
+
+
 def test_secrets_are_random_and_stored_as_hashes():
     secret = new_secret("ocrk_")
     assert secret.startswith("ocrk_") and secret != new_secret("ocrk_")

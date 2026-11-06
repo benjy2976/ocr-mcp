@@ -7,6 +7,9 @@
 # Estado local del servidor (SQLite y subidas temporales) con OCR_MCP_DATA_DIR=./datos.
 /datos/
 
+# Ajustes de Docker propios de cada equipo (red, IP, certificados).
+docker-compose.override.yml
+
 # Python
 .venv/
 __pycache__/

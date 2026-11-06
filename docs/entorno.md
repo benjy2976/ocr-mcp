@@ -49,6 +49,11 @@ el servidor con un mensaje que nunca incluye secretos.
 `OCR_MCP_PUBLIC_URL` solo admite `http` en `127.0.0.1`, `localhost` o `[::1]`;
 en cualquier otra dirección exige `https`, como OAuth.
 
+Docker Compose interpreta `$` en los valores del `.env` como el inicio de una
+variable. Por eso el hash de la contraseña usa `:` como separador
+(`scrypt:16384:8:1:…`). Si un hash del formato anterior (con `$`) llega cortado
+al contenedor, el servidor no arranca: basta con cambiar sus `$` por `:`.
+
 Solo para las pruebas:
 
 | Variable | Qué es |

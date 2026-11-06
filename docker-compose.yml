@@ -1,5 +1,7 @@
 # Ejemplo de despliegue. La configuración va en .env (copiar .env.example);
-# el estado (SQLite y subidas temporales) en el volumen ocr-mcp-data.
+# el estado (SQLite y subidas temporales) en el volumen ocr-mcp-data. Lo propio
+# de cada equipo (red del core, IP, certificados) va en docker-compose.override.yml,
+# que no se versiona: docs/procedimientos.md, "Publicar en una red local".
 services:
   ocr-mcp:
     build: .
