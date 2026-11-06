@@ -1,8 +1,7 @@
 # Arquitectura
 
-> **Aprobada, sin implementar.** Describe el diseño de las decisiones 0001 a
-> 0007. Cuando exista el código, cada afirmación se contrasta con él y se
-> actualiza en el mismo cambio.
+Describe el sistema implementado según las decisiones 0001 a 0007. Un cambio
+de componentes o del flujo global se actualiza aquí en el mismo cambio.
 
 ## Resumen
 
@@ -12,16 +11,20 @@ Markdown por páginas y los artefactos por enlace. Controla quién lo usa (OAuth
 2.1 con una clave por usuario) y cuánto (cuotas), y ofrece un panel mínimo de
 admin. No hace OCR y no conoce el almacenamiento de ningún otro sistema.
 
-## Stack previsto
+## Stack
 
 | Pieza | Elección | Por qué |
 | --- | --- | --- |
 | Lenguaje | Python 3.11 o posterior | El SDK oficial de MCP y el resto del ecosistema del core |
-| Servidor MCP y OAuth | SDK oficial `mcp` (Streamable HTTP y servidor de autorización) | Sigue la especificación sin reimplementarla |
+| Servidor MCP y OAuth | SDK oficial `mcp` 2.x (`MCPServer`, Streamable HTTP y servidor de autorización incluido) | Sigue la especificación sin reimplementarla |
+| HTTP | Starlette y uvicorn, que trae el SDK | Rutas propias junto a las del protocolo |
 | Cliente del core | `httpx` | Subida y descarga por partes, asíncronas |
 | PDF | `pypdf` | Validar el archivo y contar páginas antes de subir |
 | Plantillas del panel y del inicio de sesión | `jinja2` | Escape automático del HTML |
 | Estado | SQLite de la biblioteca estándar | Un solo archivo, sin servidor ni ORM |
+
+Las versiones mínimas están en `pyproject.toml`; `mcp` se limita a `<3`
+porque la 3.0 cambiará valores por defecto de la validación de tokens.
 
 ## Componentes y fronteras
 
@@ -56,6 +59,7 @@ flowchart LR
     quotas --> db
     panel --> access
     panel --> quotas
+    panel --> jobs
 ```
 
 | Componente | Responsabilidad | Frontera |
@@ -77,23 +81,23 @@ flowchart LR
 - `config.py` lee y valida el entorno al arrancar; los módulos reciben su
   configuración, no leen variables por su cuenta.
 
-## Mapa de carpetas previsto
+## Mapa de carpetas
 
 ```text
 src/ocr_mcp/
-├── __main__.py      arranque
+├── __main__.py      comando ocr-mcp (serve, hash-password)
 ├── app.py           composición del servicio
 ├── config.py        entorno validado al arrancar
-├── shared/          db.py, security.py, web.py
+├── shared/          db.py, security.py, web.py y templates/ (base y mensajes)
 ├── migrations/      SQL numerado
-└── modules/
-    ├── core/        cliente de ocr-core
-    ├── access/      OAuth, claves e inicio de sesión
-    ├── files/       enlaces de subida y descarga
-    ├── jobs/        herramientas MCP
-    ├── quotas/      cuotas, modo público y estadísticas
-    └── admin/       panel /admin
-tests/               mismo orden que modules/, más el core simulado
+└── modules/         cada uno con su context.md
+    ├── core/        client.py
+    ├── quotas/      policy.py, public.py
+    ├── access/      keys.py, oauth.py, login.py, templates/
+    ├── files/       uploads.py, downloads.py, fetch.py, routes.py, templates/
+    ├── jobs/        tools.py, ledger.py, markdown.py, rules.py
+    └── admin/       session.py, routes.py, templates/
+tests/               mismo orden que modules/, más fakes/core.py (el core simulado)
 ```
 
 ## Flujo global

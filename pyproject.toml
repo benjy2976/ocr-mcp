@@ -9,9 +9,11 @@ description = "Servidor MCP que pone el OCR de ocr-core al alcance de agentes de
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-  "mcp>=1.2",
-  "httpx>=0.27",
-  "pypdf>=4.0",
+  # 3.0 cambiará valores por defecto de la validación de tokens.
+  "mcp>=2.3,<3",
+  "httpx>=0.28",
+  "pypdf>=6.0",
+  "jinja2>=3.1",
 ]
 
 [project.optional-dependencies]
@@ -20,8 +22,14 @@ dev = [
   "ruff>=0.6",
 ]
 
+[project.scripts]
+ocr-mcp = "ocr_mcp.__main__:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+ocr_mcp = ["migrations/*.sql", "shared/templates/*.html", "modules/*/templates/*.html"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

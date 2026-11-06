@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>{% block title %}ocr-mcp{% endblock %}</title>
+  <style>
+    :root { color-scheme: light dark; --fg: #1d1d1f; --bg: #fafafa; --muted: #6b6b70;
+            --line: #d8d8dc; --accent: #2457c5; --danger: #b3261e; --box: #ffffff; }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg: #ececf0; --bg: #17171a; --muted: #a0a0a8; --line: #36363c;
+              --accent: #7aa2ff; --danger: #ff8a80; --box: #202024; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.5 system-ui, sans-serif; color: var(--fg); background: var(--bg); }
+    main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 1.4rem; margin: 0 0 16px; }
+    h2 { font-size: 1.1rem; margin: 28px 0 8px; }
+    p.muted, .muted { color: var(--muted); }
+    .box { background: var(--box); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 12px 0; }
+    label { display: block; margin: 10px 0 4px; font-weight: 600; }
+    input[type=text], input[type=password], input[type=number], input[type=file] {
+      width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 6px;
+      background: transparent; color: inherit; font: inherit; }
+    button { margin-top: 12px; padding: 8px 14px; border: 0; border-radius: 6px;
+             background: var(--accent); color: #fff; font: inherit; cursor: pointer; }
+    button.danger { background: var(--danger); }
+    .error { color: var(--danger); font-weight: 600; }
+    code, pre { font-family: ui-monospace, monospace; font-size: 0.9em; }
+    pre { overflow-x: auto; background: var(--box); border: 1px solid var(--line); border-radius: 6px; padding: 10px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .secret { word-break: break-all; font-size: 1.05em; }
+  </style>
+</head>
+<body>
+<main>
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

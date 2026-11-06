@@ -1,11 +1,8 @@
 # 0001. Un cliente genérico de `ocr-core` que solo recibe y entrega trabajos
 
-- **Estado:** aceptada, sin implementar
+- **Estado:** vigente
 - **Fecha:** 2026-11-05
 - **Decidió:** Walther Aguirre
-
-> **Hoy:** el repo todavía no tiene código. Esta decisión fija el alcance de lo
-> que se va a implementar.
 
 ## Contexto
 
@@ -67,4 +64,6 @@ y entrega trabajos:
 
 ## Evidencia
 
-Commit inicial del repo.
+Commit inicial del repo (diseño). Implementación:
+`src/ocr_mcp/modules/core/client.py`, el único que conoce la API del core;
+pruebas en `tests/modules/core/test_client.py`.

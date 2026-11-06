@@ -10,13 +10,13 @@ agente por su cuenta.
 
 | # | Decisión | Estado |
 | --- | --- | --- |
-| [0001](0001-cliente-generico-que-solo-recibe-y-entrega-trabajos.md) | Un cliente genérico de `ocr-core` que solo recibe y entrega trabajos | aceptada, sin implementar |
-| [0002](0002-servicio-http-con-oauth-obligatorio.md) | Un servicio HTTP con OAuth 2.1 obligatorio, también en uso local | aceptada, sin implementar |
-| [0003](0003-archivos-por-enlace.md) | Los archivos viajan por enlace: subida de un solo uso y descarga que vence | aceptada, sin implementar |
-| [0004](0004-trabajo-asincrono-con-ticket.md) | Trabajo asíncrono con el patrón del ticket | aceptada, sin implementar |
-| [0005](0005-sin-limites-propios-por-defecto.md) | Sin límites propios por defecto; manda el límite del core | aceptada, sin implementar |
-| [0006](0006-claves-de-acceso-oauth-y-panel-de-admin.md) | Acceso con una clave por usuario, OAuth 2.1 incluido y un panel mínimo de admin | aceptada, sin implementar |
-| [0007](0007-cuotas-modo-publico-y-estadisticas.md) | Cuotas por clave, modo público opcional y estadísticas de uso | aceptada, sin implementar |
+| [0001](0001-cliente-generico-que-solo-recibe-y-entrega-trabajos.md) | Un cliente genérico de `ocr-core` que solo recibe y entrega trabajos | vigente |
+| [0002](0002-servicio-http-con-oauth-obligatorio.md) | Un servicio HTTP con OAuth 2.1 obligatorio, también en uso local | vigente |
+| [0003](0003-archivos-por-enlace.md) | Los archivos viajan por enlace: subida de un solo uso y descarga que vence | vigente |
+| [0004](0004-trabajo-asincrono-con-ticket.md) | Trabajo asíncrono con el patrón del ticket | vigente |
+| [0005](0005-sin-limites-propios-por-defecto.md) | Sin límites propios por defecto; manda el límite del core | vigente |
+| [0006](0006-claves-de-acceso-oauth-y-panel-de-admin.md) | Acceso con una clave por usuario, OAuth 2.1 incluido y un panel mínimo de admin | vigente |
+| [0007](0007-cuotas-modo-publico-y-estadisticas.md) | Cuotas por clave, modo público opcional y estadísticas de uso | vigente |
 
 ## Reglas
 

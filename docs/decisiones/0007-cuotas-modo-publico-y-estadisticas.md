@@ -1,10 +1,8 @@
 # 0007. Cuotas por clave, modo público opcional y estadísticas de uso
 
-- **Estado:** aceptada, sin implementar
+- **Estado:** vigente
 - **Fecha:** 2026-11-05
 - **Decidió:** Walther Aguirre
-
-> **Hoy:** el repo todavía no tiene código.
 
 ## Contexto
 
@@ -68,4 +66,7 @@ documentos.
 
 ## Evidencia
 
-Commit inicial del repo.
+Commit inicial del repo (diseño). Implementación: `src/ocr_mcp/modules/quotas/`
+y `src/ocr_mcp/modules/jobs/ledger.py`; pruebas en
+`tests/modules/quotas/test_policy.py` y en las de cuotas de
+`tests/modules/jobs/test_tools.py`.

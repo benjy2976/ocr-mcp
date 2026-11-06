@@ -1,10 +1,8 @@
 # 0002. Un servicio HTTP con OAuth 2.1 obligatorio, también en uso local
 
-- **Estado:** aceptada, sin implementar
+- **Estado:** vigente
 - **Fecha:** 2026-11-05
 - **Decidió:** Walther Aguirre
-
-> **Hoy:** el repo todavía no tiene código.
 
 ## Contexto
 
@@ -59,4 +57,8 @@ de conectarse y de controlar quién accede.
 
 ## Evidencia
 
-Commit inicial del repo.
+Commit inicial del repo (diseño). Implementación: `src/ocr_mcp/app.py`
+(`MCPServer` con `AuthSettings` y el proveedor de
+`src/ocr_mcp/modules/access/oauth.py`); pruebas en
+`tests/modules/access/test_oauth_flow.py`, incluida una sesión MCP con token
+(`test_a_valid_token_reaches_the_mcp_endpoint`).

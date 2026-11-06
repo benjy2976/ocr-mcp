@@ -1,16 +1,16 @@
 # Entorno
 
-> **Previsto.** El servidor todavía no existe. Los nombres de las variables se
-> confirman al implementarlo; esta es la única fuente de las variables y el
-> `README.md` la enlaza.
+Única fuente de las variables de entorno; el `README.md` la enlaza. Las lee y
+valida `src/ocr_mcp/config.py` al arrancar: un valor faltante o inseguro detiene
+el servidor con un mensaje que nunca incluye secretos.
 
 ## Perfiles
 
 | Perfil | Para qué | Cómo corre |
 | --- | --- | --- |
 | Desarrollo | Escribir y probar el código | Entorno virtual de Python, con el core simulado de las pruebas |
-| Uso local | Usarlo desde la propia máquina | Servicio en `127.0.0.1`, contra un `ocr-core` accesible |
-| En línea | Ofrecerlo a otros | Servicio detrás de un proxy inverso con TLS |
+| Uso local | Usarlo desde la propia máquina | `ocr-mcp serve` o el contenedor, en `127.0.0.1`, contra un `ocr-core` accesible |
+| En línea | Ofrecerlo a otros | Contenedor detrás de un proxy inverso con TLS (`OCR_MCP_PUBLIC_URL` con `https`) |
 
 ## Requisitos
 
@@ -37,9 +37,15 @@
 | `OCR_MCP_DATA_DIR` | (obligatoria) | Carpeta de la base SQLite |
 | `OCR_MCP_ADMIN_USER` | (obligatoria) | Usuario del panel `/admin` |
 | `OCR_MCP_ADMIN_PASSWORD_HASH` | (obligatoria) | Hash de la contraseña del admin |
-| `OCR_MCP_ALLOWED_URL_PREFIXES` | vacío (apagado) | Prefijos de URL que el servidor puede descargar |
-| Vigencias | 1 h, 30 días y 30 min | Del token de acceso, del token de refresco y de los enlaces |
-| Límites por documento | sin valor | Tamaño y páginas máximas (decisión 0005) |
+| `OCR_MCP_ALLOWED_URL_PREFIXES` | vacío (apagado) | Prefijos de URL que el servidor puede descargar, separados por coma |
+| `OCR_MCP_ACCESS_TOKEN_TTL_MIN` | `60` | Vigencia del token de acceso, en minutos |
+| `OCR_MCP_REFRESH_TOKEN_TTL_DAYS` | `30` | Vigencia del token de refresco, en días |
+| `OCR_MCP_LINK_TTL_MIN` | `30` | Vigencia de los enlaces de subida y descarga, en minutos |
+| `OCR_MCP_MAX_UPLOAD_BYTES` | sin valor | Tamaño máximo propio por documento; rige el menor entre este y el del core (decisión 0005) |
+| `OCR_MCP_MAX_PAGES` | sin valor | Páginas máximas propias por documento |
+
+`OCR_MCP_PUBLIC_URL` solo admite `http` en `127.0.0.1`, `localhost` o `[::1]`;
+en cualquier otra dirección exige `https`, como OAuth.
 
 Solo para las pruebas:
 
@@ -51,6 +57,8 @@ Solo para las pruebas:
 
 | Archivo | Para qué |
 | --- | --- |
-| `pyproject.toml` | Dependencias, `pytest` y `ruff` |
-| `.markdownlint-cli2.yaml` | Reglas de Markdown |
+| `pyproject.toml` | Dependencias, comando `ocr-mcp`, `pytest` y `ruff` |
+| `.env.example` | Plantilla de la configuración; se copia a `.env` |
 | `.env` | Configuración local; nunca se versiona (`.gitignore`) |
+| `Dockerfile` y `docker-compose.yml` | Imagen y despliegue de ejemplo; el estado va en el volumen `/data` |
+| `.markdownlint-cli2.yaml` | Reglas de Markdown |

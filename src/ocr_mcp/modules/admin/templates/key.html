@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Clave {{ key.name }}{% endblock %}
+{% block content %}
+<h1>{{ key.name }}</h1>
+<p class="muted">{{ "Clave pública" if key.is_public else "Clave creada por el admin" }}.</p>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+<h2>Uso</h2>
+<table>
+  <tr><th>Documentos</th><th>Páginas</th><th>Bytes</th><th>Terminados</th><th>Fallidos</th><th>Bloqueados</th></tr>
+  <tr><td>{{ stats.documents }}</td><td>{{ stats.pages }}</td><td>{{ stats.bytes }}</td>
+      <td>{{ stats.done }}</td><td>{{ stats.failed }}</td><td>{{ stats.blocked }}</td></tr>
+</table>
+<p>Hoy: {{ stats.usage.pages_today }}{% if key.limits.pages_per_day %} de {{ key.limits.pages_per_day }}{% endif %} páginas ·
+   Mes: {{ stats.usage.pages_month }}{% if key.limits.pages_per_month %} de {{ key.limits.pages_per_month }}{% endif %} páginas ·
+   En curso: {{ stats.usage.active_jobs }}{% if key.limits.max_active_jobs %} de {{ key.limits.max_active_jobs }}{% endif %}</p>
+
+<h2>Últimos 30 días</h2>
+<table>
+  <tr><th>Día (UTC)</th><th>Documentos</th><th>Páginas</th></tr>
+  {% for day in stats.daily | reverse %}{% if day.documents %}
+  <tr><td>{{ day.day }}</td><td>{{ day.documents }}</td><td>{{ day.pages }}</td></tr>
+  {% endif %}{% endfor %}
+</table>
+<p class="muted">Solo se guardan conteos: ni nombres de archivo ni contenido.</p>
+
+<h2>Cuota</h2>
+<form method="post" action="{{ base }}/admin/keys/{{ key.id }}/limits" class="box">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  {% with limits = key.limits %}{% include "_limits.html" %}{% endwith %}
+  <button type="submit">Guardar cuota</button>
+</form>
+
+<h2>Borrar</h2>
+<form method="post" action="{{ base }}/admin/keys/{{ key.id }}/delete" class="box">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <p>Borrar la clave corta el acceso de inmediato: revoca todos sus tokens.</p>
+  <button type="submit" class="danger">Borrar la clave</button>
+</form>
+<p><a href="{{ base }}/admin">Volver al panel</a></p>
+{% endblock %}

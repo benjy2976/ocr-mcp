@@ -1,10 +1,8 @@
 # 0004. Trabajo asíncrono con el patrón del ticket
 
-- **Estado:** aceptada, sin implementar
+- **Estado:** vigente
 - **Fecha:** 2026-11-05
 - **Decidió:** Walther Aguirre
-
-> **Hoy:** el repo todavía no tiene código.
 
 ## Contexto
 
@@ -43,4 +41,6 @@ y un agente que consulta el estado sin pausa gasta turnos.
 
 ## Evidencia
 
-Commit inicial del repo.
+Commit inicial del repo (diseño). Implementación: `ocr_submit` y `ocr_status` en
+`src/ocr_mcp/modules/jobs/tools.py`; pruebas en
+`tests/modules/jobs/test_tools.py`.

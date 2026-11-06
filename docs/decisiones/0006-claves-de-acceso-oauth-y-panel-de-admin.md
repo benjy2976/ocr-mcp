@@ -1,11 +1,8 @@
 # 0006. Acceso con una clave por usuario, OAuth 2.1 incluido y un panel mínimo de admin
 
-- **Estado:** aceptada, sin implementar
+- **Estado:** vigente
 - **Fecha:** 2026-11-05
 - **Decidió:** Walther Aguirre
-
-> **Hoy:** el repo todavía no tiene código. Los nombres de las variables y de
-> las rutas son los previstos y se confirman al implementarlos.
 
 ## Contexto
 
@@ -76,4 +73,7 @@ quién da y quita el acceso, y dónde se guarda ese estado.
 
 ## Evidencia
 
-Commit inicial del repo.
+Commit inicial del repo (diseño). Implementación: `src/ocr_mcp/modules/access/`
+y `src/ocr_mcp/modules/admin/`; pruebas en
+`tests/modules/access/test_oauth_flow.py`, `tests/modules/admin/test_panel.py` y
+`test_a_user_never_sees_another_users_job_or_upload`.

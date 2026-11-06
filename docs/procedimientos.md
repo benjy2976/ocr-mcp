@@ -5,9 +5,6 @@ ejecutan desde la raíz del repo. Antes de ejecutar comandos, el protocolo de
 `AGENTS.md` pide declarar su propósito y alcance
 (`docs/memoria-viva/resource-efficiency.md`).
 
-> El servidor todavía no existe. Hoy solo hay pruebas de la documentación; los
-> procedimientos de arranque, Docker y prueba de humo nacen con el código.
-
 ## Preparar el entorno
 
 Precondición: Python 3.11 o posterior (`docs/entorno.md`).
@@ -24,9 +21,42 @@ python -m venv .venv
 ```bash
 .venv/bin/pytest
 .venv/bin/ruff check .
+.venv/bin/ruff format --check src tests
 ```
 
-Las pruebas no necesitan un core real, red ni GPU (`docs/convenciones.md`).
+Las pruebas no necesitan un core real, red ni GPU: usan el core simulado
+(`tests/fakes/core.py`). `tests/test_architecture.py` comprueba las reglas de
+organización del código.
+
+## Arrancar el servidor en la propia máquina
+
+Precondiciones: un `ocr-core` accesible y el token de este servidor registrado
+en él (`README.md`, "Requisitos").
+
+```bash
+cp .env.example .env
+.venv/bin/ocr-mcp hash-password        # pegar el resultado en OCR_MCP_ADMIN_PASSWORD_HASH
+# completar OCR_CORE_TOKEN y revisar OCR_CORE_URL en .env
+.venv/bin/ocr-mcp serve --env-file .env
+```
+
+Éxito: `curl http://127.0.0.1:18040/health` responde
+`{"status": "ok", …}` y `http://127.0.0.1:18040/admin` muestra el inicio de
+sesión del panel. Después, crear una clave en el panel y conectar un cliente
+(`docs/integracion-con-clientes.md`).
+
+## Arrancar con Docker
+
+```bash
+cp .env.example .env                    # completar como arriba
+docker compose up -d --build
+curl http://127.0.0.1:18040/health
+```
+
+Dentro del contenedor, `127.0.0.1` es el propio contenedor: `OCR_CORE_URL` debe
+apuntar a una dirección del core alcanzable desde él (por ejemplo, el nombre
+del servicio en una red de Docker compartida). El estado queda en el volumen
+`ocr-mcp-data`; respaldarlo conserva las claves y el uso.
 
 ## Términos prohibidos
 

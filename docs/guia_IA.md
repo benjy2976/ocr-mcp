@@ -10,7 +10,7 @@ protocolo operativo vive en `AGENTS.md` y no se duplica aquí.
 
 - Skill: `gestionar-memoria-viva-proyecto`.
 - Versión adoptada: `1.7.0`.
-- Fecha de revisión: `2026-11-05`.
+- Fecha de revisión: `2026-11-06`.
 - Versión anterior: no aplica; es la primera adopción.
 - Adaptaciones y mejoras locales, que se conservan en este repo:
   - registro de decisiones (`docs/decisiones/`) e iniciativas
@@ -23,16 +23,24 @@ protocolo operativo vive en `AGENTS.md` y no se duplica aquí.
 El registro es informativo: no conecta el repo con la skill ni sustituye la
 validación local (`scripts/validate-project-memory`).
 
+### Límites del validador en este repo
+
+El validador detecta el CLI, pero no las rutas de Starlette ni del SDK de MCP
+(informa `api: N/A`) ni las migraciones SQL (informa `model: N/A`). Las dos
+capacidades existen: `docs/api.md` y `docs/modelo-datos.md` se revisan a mano
+contra `src/ocr_mcp/app.py`, las funciones `routes()` de cada módulo y
+`src/ocr_mcp/migrations/`. Los contextos de `src/ocr_mcp/modules/` tampoco se
+detectan solos: el índice de abajo es la referencia.
+
 ## Estado del proyecto
 
-El repo tiene su diseño y su memoria, pero **todavía no tiene código**. Las
-decisiones 0001 a 0007 están aceptadas y sin implementar. Al leer cualquier
-documento, distinguir:
+El servidor está implementado y probado contra un core simulado: OAuth 2.1 con
+claves por usuario, las cinco herramientas, enlaces de subida y descarga,
+cuotas, modo público, estadísticas y panel `/admin`. Falta probarlo contra un
+core real y con cada cliente (ver "Pendientes conocidos").
 
-- **implementado:** existe evidencia ejecutable actual. Hoy, solo las pruebas
-  de la documentación;
-- **aprobado, no implementado:** orienta el diseño, pero no es una capacidad;
-- **pendiente:** pregunta abierta con responsable (ver abajo).
+Al leer cualquier documento, distinguir lo implementado (con evidencia
+ejecutable), lo aprobado sin implementar y lo pendiente.
 
 ## Mapa de fuentes normativas
 
@@ -44,47 +52,42 @@ documento, distinguir:
 | ¿Cómo se organiza el sistema? | `docs/arquitectura.md` |
 | ¿Cómo se escribe el código y la documentación? | `docs/convenciones.md` |
 | ¿Qué requiere el entorno? | `docs/entorno.md` |
-| ¿Cómo se instala, prueba y valida? | `docs/procedimientos.md` |
+| ¿Cómo se instala, prueba, valida y despliega? | `docs/procedimientos.md` |
+| ¿Qué rutas HTTP y herramientas MCP existen? | `docs/api.md` |
+| ¿Cómo se persisten los datos? | `docs/modelo-datos.md` |
+| ¿Qué hace el comando `ocr-mcp`? | `docs/cli.md` |
 | ¿Cómo se conecta un cliente MCP? | `docs/integracion-con-clientes.md` |
 | ¿Qué trabajo pendiente no tiene plan? | `docs/INICIATIVAS.md` |
 | ¿Cómo se gobiernan comandos y recursos? | `docs/memoria-viva/resource-efficiency.md` |
 | ¿Dónde están las referencias del estándar? | `docs/memoria-viva/README.md` |
 | ¿Cómo se estructura un contexto de módulo? | `docs/context-template.md` |
 
-### Fuentes condicionales todavía inexistentes
+`docs/frontend.md` no aplica: el panel y la página de inicio de sesión son
+plantillas del servidor dentro de sus módulos, no una raíz frontend.
 
-| Fuente | Nace cuando | Qué contendrá |
-| --- | --- | --- |
-| `docs/api.md` | Exista el primer endpoint HTTP (`/mcp`, OAuth, enlaces o `/admin`) | Operaciones, acceso, entradas, salidas y errores |
-| `docs/modelo-datos.md` | Exista la primera migración de SQLite | Entidades, relaciones y restricciones |
-| `docs/cli.md` | Exista un comando propio (por ejemplo, generar el hash del admin) | Argumentos, salidas y códigos |
-| `.github/instructions/python.instructions.md` | Exista el primer código Python del servidor | Reglas propias de la capa |
+## Flujos críticos
 
-`docs/frontend.md` no aplica: el panel `/admin` y la página de inicio de sesión
-son plantillas del servidor dentro de sus módulos, no una raíz frontend.
-
-## Invariantes aprobados
-
-Todavía no hay flujos implementados. Estos invariantes gobiernan el diseño y
-pasan a ser flujos críticos, con su prueba, cuando exista el código:
-
-| Invariante | Fuente |
-| --- | --- |
-| Toda petición MCP exige un token OAuth válido, también en uso local | Decisión 0002 |
-| Los archivos viajan por enlace; nunca en base64 ni por rutas del servidor | Decisión 0003 |
-| Cada usuario ve solo sus trabajos; la `idempotency_key` incluye al usuario | Decisión 0006 |
-| Claves y tokens solo como hash; nunca en logs, errores ni respuestas | Decisión 0006 |
-| Las estadísticas guardan solo conteos, nunca nombres ni contenido | Decisión 0007 |
+| Flujo | Invariante | Fuente | Prueba |
+| --- | --- | --- | --- |
+| Autorización | Toda petición MCP exige un token OAuth para `<URL>/mcp`; borrar la clave lo revoca | Decisiones 0002 y 0006, `src/ocr_mcp/modules/access/context.md` | `tests/modules/access/test_oauth_flow.py` |
+| Aislamiento | Cada usuario ve solo sus trabajos y subidas | `src/ocr_mcp/modules/jobs/context.md` | `test_a_user_never_sees_another_users_job_or_upload` |
+| Archivos | Entran y salen por enlace; nunca en base64 ni por rutas del servidor | Decisión 0003, `src/ocr_mcp/modules/files/context.md` | `tests/modules/files/test_links.py` |
+| Cuotas | Se comprueban antes de enviar; un fallo devuelve las páginas | Decisión 0007, `src/ocr_mcp/modules/quotas/context.md` | `tests/modules/quotas/test_policy.py` |
+| Privacidad | Secretos solo como hash; estadísticas solo con conteos | Decisiones 0006 y 0007, `docs/modelo-datos.md` | `test_usage_keeps_counts_but_never_titles_or_file_names` |
 
 ## Contextos de módulos
 
-Ninguno todavía. Cada módulo de `src/ocr_mcp/modules/` crea su `context.md`
-desde `docs/context-template.md` al nacer, y se indexa aquí en una línea. Los
-módulos previstos están en `docs/arquitectura.md`.
+- `core`: `src/ocr_mcp/modules/core/context.md` — cliente HTTP de `ocr-core`.
+- `quotas`: `src/ocr_mcp/modules/quotas/context.md` — política de cuotas y modo público.
+- `access`: `src/ocr_mcp/modules/access/context.md` — claves de acceso, OAuth e inicio de sesión.
+- `files`: `src/ocr_mcp/modules/files/context.md` — enlaces de subida y descarga, y URL permitidas.
+- `jobs`: `src/ocr_mcp/modules/jobs/context.md` — herramientas MCP y registro de trabajos.
+- `admin`: `src/ocr_mcp/modules/admin/context.md` — panel `/admin`.
 
 ## Instrucciones por capa
 
-Ninguna todavía. La capa Python nace con el primer código del servidor.
+- Python: `.github/instructions/python.instructions.md` — todo el servicio, en
+  `src/ocr_mcp/`.
 
 ## Pendientes conocidos
 
@@ -92,12 +95,14 @@ Ninguna todavía. La capa Python nace con el primer código del servidor.
 | --- | --- | --- |
 | Elegir la licencia libre del repo | Autor | Publicar el repo |
 | Dirección pública de `ocr-core`; hoy se genera desde el repositorio `ocr-lab` | Autor | Publicar el repo |
+| Probar el servidor contra un `ocr-core` real y con Claude Code | Agente y autor | Marcar el servidor como listo para uso |
 | Verificar con cada cliente los ejemplos de `docs/integracion-con-clientes.md` | Agente y autor | Marcar la guía como vigente |
 
 ## Errores comunes al usar la memoria
 
 - leer solo esta guía y omitir `AGENTS.md` o el contexto afectado;
-- presentar una decisión aceptada como si ya estuviera implementada;
+- confiar en un `N/A` del validador para `api` o `model`: aquí son límites de
+  detección, no ausencia de la capacidad;
 - duplicar una regla para hacerla más visible en vez de enlazar su fuente;
-- crear un documento condicional antes de que exista su capacidad;
-- asumir que `N/A` o una ejecución sin errores significa que todo fue evaluado.
+- cambiar una ruta, una tabla o el comando sin actualizar `docs/api.md`,
+  `docs/modelo-datos.md` o `docs/cli.md`.

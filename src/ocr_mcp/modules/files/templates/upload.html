@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Subir un PDF{% endblock %}
+{% block content %}
+<h1>Subir un PDF</h1>
+<p class="muted">Este enlace sirve una sola vez. Después vuelve a tu agente: él enviará el documento al OCR.</p>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<form method="post" enctype="multipart/form-data" class="box">
+  <label for="file">Documento PDF</label>
+  <input type="file" id="file" name="file" accept="application/pdf,.pdf" required>
+  <button type="submit">Subir</button>
+</form>
+<p class="muted">Lo que tu agente lea del documento llega al proveedor del modelo. No subas documentos con
+  datos personales o confidenciales salvo que su tratamiento lo permita.</p>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Clave creada{% endblock %}
+{% block content %}
+<h1>Clave creada: {{ key.name }}</h1>
+<p><strong>Cópiala ahora: no se vuelve a mostrar.</strong> Entrégala a su usuario por un canal seguro.</p>
+<p class="box secret"><code>{{ secret }}</code></p>
+{% include "_examples.html" %}
+<p><a href="{{ base }}/admin">Volver al panel</a></p>
+{% endblock %}

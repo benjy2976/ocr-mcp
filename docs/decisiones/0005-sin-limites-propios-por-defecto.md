@@ -1,10 +1,8 @@
 # 0005. Sin límites propios por defecto; manda el límite del core
 
-- **Estado:** aceptada, sin implementar
+- **Estado:** vigente
 - **Fecha:** 2026-11-05
 - **Decidió:** Walther Aguirre
-
-> **Hoy:** el repo todavía no tiene código.
 
 ## Contexto
 
@@ -43,4 +41,7 @@ inventado en el MCP divergiría del core.
 
 ## Evidencia
 
-Commit inicial del repo.
+Commit inicial del repo (diseño). Implementación: `JobsDeps.upload_limit` en
+`src/ocr_mcp/modules/jobs/tools.py` y `OCR_MCP_MAX_UPLOAD_BYTES` y
+`OCR_MCP_MAX_PAGES` (`docs/entorno.md`); prueba
+`test_a_pdf_over_the_core_limit_is_rejected_before_storing`.

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Tu clave pública{% endblock %}
+{% block content %}
+<h1>Tu clave pública</h1>
+<p><strong>Guárdala ahora: no se vuelve a mostrar.</strong> La necesitarás para conectar otros clientes.</p>
+<p class="box secret"><code>{{ secret }}</code></p>
+<p class="muted">Cuota:
+  {% if limits.pages_per_day %}{{ limits.pages_per_day }} páginas por día{% endif %}
+  {% if limits.pages_per_month %}· {{ limits.pages_per_month }} por mes{% endif %}
+  {% if limits.max_active_jobs %}· {{ limits.max_active_jobs }} trabajo(s) a la vez{% endif %}.
+</p>
+<form method="post" action="{{ base }}/login">
+  <input type="hidden" name="request" value="{{ request_id }}">
+  <input type="hidden" name="key" value="{{ secret }}">
+  <button type="submit">Continuar con esta clave</button>
+</form>
+{% endblock %}

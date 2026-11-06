@@ -1,0 +1,21 @@
+# Ejemplo de despliegue. La configuración va en .env (copiar .env.example);
+# el estado (SQLite y subidas temporales) en el volumen ocr-mcp-data.
+services:
+  ocr-mcp:
+    build: .
+    env_file:
+      - .env
+    environment:
+      # Dentro del contenedor el puerto es fijo; OCR_MCP_PORT solo elige el del host.
+      OCR_MCP_HOST: 0.0.0.0
+      OCR_MCP_PORT: "18040"
+      OCR_MCP_DATA_DIR: /data
+    ports:
+      # Solo en la máquina local. Para publicarlo, poner delante un proxy con TLS.
+      - "127.0.0.1:${OCR_MCP_PORT:-18040}:18040"
+    volumes:
+      - ocr-mcp-data:/data
+    restart: unless-stopped
+
+volumes:
+  ocr-mcp-data:

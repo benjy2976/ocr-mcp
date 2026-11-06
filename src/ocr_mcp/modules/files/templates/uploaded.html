@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}PDF recibido{% endblock %}
+{% block content %}
+<h1>PDF recibido</h1>
+<p>{{ upload.pages }} página(s), {{ upload.bytes }} bytes. Ya puedes volver a tu agente.</p>
+<p class="box">Identificador de la subida: <code>{{ upload.id }}</code></p>
+<p class="muted">El agente lo usa para crear el trabajo de OCR.</p>
+{% endblock %}

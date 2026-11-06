@@ -1,0 +1,9 @@
+<div class="row">
+  <div><label for="pages_per_day">Páginas por día</label>
+    <input type="number" min="1" id="pages_per_day" name="pages_per_day" value="{{ limits.pages_per_day or '' }}"></div>
+  <div><label for="pages_per_month">Páginas por mes</label>
+    <input type="number" min="1" id="pages_per_month" name="pages_per_month" value="{{ limits.pages_per_month or '' }}"></div>
+  <div><label for="max_active_jobs">Trabajos a la vez</label>
+    <input type="number" min="1" id="max_active_jobs" name="max_active_jobs" value="{{ limits.max_active_jobs or '' }}"></div>
+</div>
+<p class="muted">Vacío significa sin límite propio; rige el del core.</p>

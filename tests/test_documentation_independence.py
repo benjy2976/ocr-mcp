@@ -48,9 +48,7 @@ def _versioned_files() -> list[str]:
     files = []
     for root, dirs, names in os.walk(REPOSITORY):
         dirs[:] = [name for name in dirs if name not in WALK_SKIPPED_DIRS]
-        files.extend(
-            (Path(root) / name).relative_to(REPOSITORY).as_posix() for name in names
-        )
+        files.extend((Path(root) / name).relative_to(REPOSITORY).as_posix() for name in names)
     return files
 
 
@@ -82,8 +80,7 @@ def test_versioned_files_do_not_cite_work_plans():
                     citations.append(f"{relative}:{number}: {match.group(0)}")
     assert not citations, (
         "La documentación versionada no puede citar planes de trabajo. Cosechar ese "
-        "contenido (decisión, documento vigente o iniciativa) y citar eso:\n"
-        + "\n".join(citations)
+        "contenido (decisión, documento vigente o iniciativa) y citar eso:\n" + "\n".join(citations)
     )
 
 

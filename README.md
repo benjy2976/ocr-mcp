@@ -6,8 +6,9 @@ entre otros. El agente sube un PDF por un enlace. El servidor lo envía al core
 y le devuelve el texto en Markdown, por páginas, y enlaces para descargar el
 PDF buscable, el texto y el Markdown.
 
-> **Estado: en construcción.** El repo tiene su diseño y sus decisiones, pero
-> todavía no tiene código. Esta página describe cómo funcionará.
+> **Estado:** implementado y probado contra un core simulado. Falta probarlo
+> contra un `ocr-core` real y con cada cliente (`docs/guia_IA.md`, "Pendientes
+> conocidos").
 
 ## Cómo funciona
 
@@ -34,7 +35,7 @@ Agente de IA ──MCP (HTTP + OAuth 2.1)──► ocr-mcp ──HTTP + token─
 - **Modo público opcional,** apagado por defecto: cualquiera obtiene una clave
   con la cuota pública, dentro de un tope global.
 
-## Herramientas previstas
+## Herramientas
 
 | Herramienta | Qué hace |
 | --- | --- |
@@ -43,6 +44,8 @@ Agente de IA ──MCP (HTTP + OAuth 2.1)──► ocr-mcp ──HTTP + token─
 | `ocr_status` | Consulta el estado y puede esperar hasta 50 segundos a que termine |
 | `ocr_read_markdown` | Devuelve el Markdown de un tramo de páginas (por ejemplo, `"1-5"`) |
 | `ocr_artifact_links` | Entrega enlaces de descarga, que vencen, para el PDF buscable, el texto JSONL o el Markdown |
+
+El contrato completo está en [`docs/api.md`](docs/api.md).
 
 ## Requisitos
 
@@ -58,6 +61,26 @@ Agente de IA ──MCP (HTTP + OAuth 2.1)──► ocr-mcp ──HTTP + token─
   El token es secreto y va en el `.env` del servidor MCP. El hash se entrega a
   quien opera el core, que lo registra como cliente `mcp`.
 
+## Instalar y arrancar
+
+```bash
+python -m venv .venv && .venv/bin/pip install .
+cp .env.example .env
+.venv/bin/ocr-mcp hash-password      # pegar el hash en OCR_MCP_ADMIN_PASSWORD_HASH
+# completar OCR_CORE_TOKEN y revisar OCR_CORE_URL en .env
+.venv/bin/ocr-mcp serve --env-file .env
+```
+
+Con Docker: `docker compose up -d --build`, con el mismo `.env`. Los detalles,
+incluida la dirección del core desde el contenedor, están en
+[`docs/procedimientos.md`](docs/procedimientos.md).
+
+Después, en `http://127.0.0.1:18040/admin`:
+
+1. Crear una clave de acceso. Se muestra una sola vez.
+2. Conectar el cliente con la URL `http://127.0.0.1:18040/mcp`. En la primera
+   conexión, el navegador pide la clave.
+
 ## Configuración
 
 Por variables de entorno: la dirección y el token del core, la URL pública,
@@ -69,6 +92,9 @@ Los límites por documento (tamaño y páginas) son opcionales y no tienen valor
 por defecto: manda el límite del core
 (`docs/decisiones/0005-sin-limites-propios-por-defecto.md`). Las cuotas por
 usuario se fijan en el panel.
+
+Para ponerlo en línea: `OCR_MCP_PUBLIC_URL` con `https` y un proxy inverso con
+TLS delante. Quien lo publica lo opera.
 
 ## Conectar un cliente
 

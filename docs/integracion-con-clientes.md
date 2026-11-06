@@ -1,8 +1,9 @@
 # Integración con los clientes más habituales
 
-> **Previsto.** El servidor todavía no existe. Estos ejemplos se verifican con
-> cada cliente al implementarlo, y el panel `/admin` los muestra con la URL del
-> servidor ya puesta (decisión 0006).
+> **Sin verificar con cada cliente.** El servidor sigue la especificación de
+> MCP y su flujo OAuth está probado, pero estos ejemplos todavía no se
+> comprobaron uno por uno con cada cliente. El panel `/admin` los muestra con la
+> URL del servidor ya puesta (decisión 0006).
 
 En todos los clientes el procedimiento es el mismo, porque el acceso es por
 OAuth 2.1 (decisión 0002):

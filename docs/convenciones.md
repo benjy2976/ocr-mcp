@@ -4,9 +4,9 @@ Reglas transversales para escribir código y documentación. Las reglas propias
 de la capa Python vivirán en `.github/instructions/python.instructions.md` y
 las de cada módulo en su `context.md`.
 
-> **Aprobadas por el autor el 2026-11-05.** Todavía no hay código que las
-> confirme: el primer código las aplica, y cualquier excepción se registra aquí
-> o en una decisión.
+Aprobadas por el autor el 2026-11-05 y aplicadas por el código. Las de
+organización las comprueba `tests/test_architecture.py`; una excepción se
+registra aquí o en una decisión.
 
 ## Idioma y nombres
 
@@ -76,10 +76,17 @@ variables de entorno y los ejemplos usan dominios genéricos
 
 ## HTTP
 
-Al crear el primer endpoint se adopta el diseño orientado a recursos de
-`docs/memoria-viva/http-resource-design.md` y nace `docs/api.md`. Las rutas
-del protocolo MCP y de OAuth las define su especificación; las propias
-(enlaces y panel) siguen ese diseño.
+Se adopta el diseño orientado a recursos de
+`docs/memoria-viva/http-resource-design.md`; la clasificación de cada ruta está
+en `docs/api.md`.
+
+- Las rutas del protocolo MCP y de OAuth las define su especificación y las
+  monta el SDK.
+- Las páginas usan formularios HTML, que solo envían `GET` y `POST`: actualizar
+  y borrar son `POST` sobre una ruta con el verbo (`/admin/keys/{id}/limits`,
+  `/admin/keys/{id}/delete`), y responden `303` hacia la página.
+- Las rutas propias no pasan por OAuth: cada una se protege con el secreto del
+  enlace o con la sesión del admin y su token CSRF.
 
 ## Pruebas
 

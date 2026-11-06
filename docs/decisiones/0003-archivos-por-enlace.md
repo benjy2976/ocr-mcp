@@ -1,10 +1,8 @@
 # 0003. Los archivos viajan por enlace: subida de un solo uso y descarga que vence
 
-- **Estado:** aceptada, sin implementar
+- **Estado:** vigente
 - **Fecha:** 2026-11-05
 - **Decidió:** Walther Aguirre
-
-> **Hoy:** el repo todavía no tiene código.
 
 ## Contexto
 
@@ -59,4 +57,7 @@ le pasa datos a una herramienta como argumentos que el propio modelo genera.
 
 ## Evidencia
 
-Commit inicial del repo.
+Commit inicial del repo (diseño). Implementación: `src/ocr_mcp/modules/files/`;
+pruebas en `tests/modules/files/test_links.py` y
+`test_urls_are_accepted_only_from_configured_prefixes`
+(`tests/modules/jobs/test_tools.py`).
