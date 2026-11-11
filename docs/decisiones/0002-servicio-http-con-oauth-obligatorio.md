@@ -1,6 +1,6 @@
 # 0002. Un servicio HTTP con OAuth 2.1 obligatorio, también en uso local
 
-- **Estado:** vigente
+- **Estado:** vigente, salvo el punto 2: reemplazado por la decisión 0009
 - **Fecha:** 2026-11-05
 - **Decidió:** Walther Aguirre
 

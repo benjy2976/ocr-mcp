@@ -45,6 +45,7 @@ el servidor con un mensaje que nunca incluye secretos.
 | `OCR_MCP_MAX_UPLOAD_BYTES` | sin valor | Tamaño máximo propio por documento; rige el menor entre este y el del core (decisión 0005) |
 | `OCR_MCP_MAX_PAGES` | sin valor | Páginas máximas propias por documento |
 | `OCR_MCP_TLS_CERT` y `OCR_MCP_TLS_KEY` | sin valor | Certificado y llave para servir HTTPS sin proxy; van juntas y exigen `OCR_MCP_PUBLIC_URL` con `https` (decisión 0008) |
+| `OCR_MCP_TRUSTED_PROXIES` | sin valor (solo `127.0.0.1`) | Proxies cuyo `X-Forwarded-For` se cree, para conocer la IP real del cliente: IPs o rangos CIDR separados por coma, o `*` (decisión 0009). Sin ella, detrás de un proxy todos los clientes comparten los límites por dirección |
 
 `OCR_MCP_PUBLIC_URL` solo admite `http` en `127.0.0.1`, `localhost` o `[::1]`;
 en cualquier otra dirección exige `https`, como OAuth.

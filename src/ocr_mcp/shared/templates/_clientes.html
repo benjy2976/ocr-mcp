@@ -1,0 +1,62 @@
+<h2>Cómo se conecta un cliente</h2>
+<p>URL del servidor: <code>{{ mcp_url }}</code></p>
+<p>Hay dos formas de conectarse con la misma clave (<code>docs/integracion-con-clientes.md</code>):</p>
+<ul>
+  <li><strong>Con inicio de sesión (OAuth):</strong> se agrega solo la URL; en la primera conexión el cliente abre
+    el navegador y la página pide la clave. El cliente recibe y renueva su token.</li>
+  <li><strong>Con la clave como token:</strong> la clave va en el encabezado
+    <code>Authorization: Bearer &lt;clave&gt;</code>. Sirve para clientes sin OAuth, agentes y scripts. La
+    clave queda guardada en la configuración del cliente: trátala como una contraseña.</li>
+</ul>
+
+<h3>Claude Code</h3>
+<pre>claude mcp add --transport http ocr {{ mcp_url }}</pre>
+<p class="muted">Después, dentro de Claude Code, <code>/mcp</code> abre el navegador para iniciar sesión. Con la clave
+  como token:</p>
+<pre>claude mcp add --transport http ocr {{ mcp_url }} --header "Authorization: Bearer &lt;clave&gt;"</pre>
+
+<h3>Codex</h3>
+<p class="muted">Con la clave en una variable de entorno (por ejemplo, <code>OCR_MCP_KEY</code>) disponible al abrir
+  Codex:</p>
+<pre>codex mcp add ocr --url {{ mcp_url }} --bearer-token-env-var OCR_MCP_KEY</pre>
+<p class="muted">O en <code>~/.codex/config.toml</code>:</p>
+<pre>[mcp_servers.ocr]
+url = "{{ mcp_url }}"
+bearer_token_env_var = "OCR_MCP_KEY"</pre>
+
+<h3>VS Code</h3>
+<p class="muted">En <code>.vscode/mcp.json</code> del proyecto. Sin <code>headers</code> e
+  <code>inputs</code>, usa el inicio de sesión:</p>
+<pre>{
+  "servers": {
+    "ocr": {
+      "type": "http",
+      "url": "{{ mcp_url }}",
+      "headers": { "Authorization": "Bearer ${input:ocr-clave}" }
+    }
+  },
+  "inputs": [
+    { "type": "promptString", "id": "ocr-clave", "description": "Clave de ocr-mcp", "password": true }
+  ]
+}</pre>
+
+<h3>Cursor</h3>
+<p class="muted">En <code>~/.cursor/mcp.json</code> o <code>.cursor/mcp.json</code> del proyecto. Sin
+  <code>headers</code>, usa el inicio de sesión:</p>
+<pre>{
+  "mcpServers": {
+    "ocr": {
+      "url": "{{ mcp_url }}",
+      "headers": { "Authorization": "Bearer &lt;clave&gt;" }
+    }
+  }
+}</pre>
+
+<h3>Cualquier otro cliente o script</h3>
+<pre>curl -H "Authorization: Bearer &lt;clave&gt;" -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" {{ mcp_url }} \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"prueba","version":"1"}}}'</pre>
+
+<h3>Claude Desktop y claude.ai</h3>
+<p>Se agrega como conector personalizado con la URL del servidor e inicio de sesión. Estos conectores se conectan
+  desde la nube del proveedor: exigen una URL pública con HTTPS y no funcionan con <code>127.0.0.1</code>.</p>

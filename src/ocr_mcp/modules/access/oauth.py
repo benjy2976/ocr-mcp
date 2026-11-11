@@ -1,10 +1,11 @@
-"""Proveedor del servidor de autorización incluido (decisiones 0002 y 0006).
+"""Proveedor del servidor de autorización incluido (decisiones 0002, 0006 y 0009).
 
 El SDK de MCP monta `/authorize`, `/token`, `/register`, `/revoke` y los
 metadatos; este proveedor guarda clientes, códigos y tokens en SQLite (solo sus
 hashes) y envía al usuario a la página que pide su clave. El `subject` de cada
 código y token es el identificador de la clave: así cada herramienta sabe quién
-la llama.
+la llama. Una clave de acceso vale también como token Bearer directo, para los
+clientes que no hacen OAuth (decisión 0009).
 """
 
 from __future__ import annotations
@@ -29,6 +30,8 @@ from ocr_mcp.shared.security import new_secret, secret_hash
 SCOPE = "ocr"
 PENDING_TTL = 600
 CODE_TTL = 300
+# `client_id` de una clave usada como token directo: no hay cliente OAuth detrás.
+KEY_CLIENT_ID = "clave-de-acceso"
 
 
 class AccessProvider:
@@ -174,6 +177,9 @@ class AccessProvider:
         )
 
     async def load_access_token(self, token: str) -> AccessToken | None:
+        # Los tokens OAuth no llevan prefijo; las claves sí (`ocrk_`).
+        if token.startswith(keys.KEY_PREFIX):
+            return self._key_as_token(token)
         row = self._token(token, "access", None)
         if row is None:
             return None
@@ -194,6 +200,21 @@ class AccessProvider:
             )
 
     # --- internos -------------------------------------------------------------
+
+    def _key_as_token(self, secret: str) -> AccessToken | None:
+        """La clave como token: sin vencimiento propio; borrarla la revoca al instante."""
+        key = keys.find_by_secret(self.db, secret)
+        if key is None:
+            return None
+        keys.touch(self.db, key.id)
+        return AccessToken(
+            token=secret,
+            client_id=KEY_CLIENT_ID,
+            scopes=[SCOPE],
+            expires_at=None,
+            resource=self.settings.resource_url,
+            subject=key.id,
+        )
 
     def _issue(self, client_id: str, key_id: str, scopes: list[str]) -> OAuthToken:
         access, refresh = new_secret(), new_secret()

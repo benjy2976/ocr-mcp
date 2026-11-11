@@ -9,9 +9,13 @@
   {% if limits.pages_per_month %}· {{ limits.pages_per_month }} por mes{% endif %}
   {% if limits.max_active_jobs %}· {{ limits.max_active_jobs }} trabajo(s) a la vez{% endif %}.
 </p>
+{% if request_id %}
 <form method="post" action="{{ base }}/login">
   <input type="hidden" name="request" value="{{ request_id }}">
   <input type="hidden" name="key" value="{{ secret }}">
   <button type="submit">Continuar con esta clave</button>
 </form>
+{% else %}
+{% include "_clientes.html" %}
+{% endif %}
 {% endblock %}

@@ -82,3 +82,21 @@ def test_https_public_urls_and_prefixes():
     )
     assert settings.secure_cookies and settings.max_pages == 200
     assert settings.allowed_url_prefixes == ("https://a.ejemplo.org/docs", "https://b.ejemplo.org")
+
+
+def test_trusted_proxies_accept_ips_ranges_or_everyone():
+    assert Settings.from_env(environment()).trusted_proxies is None
+    assert Settings.from_env(environment(OCR_MCP_TRUSTED_PROXIES=" * ")).trusted_proxies == "*"
+    loaded = Settings.from_env(environment(OCR_MCP_TRUSTED_PROXIES="10.42.0.0/16, 192.0.2.7"))
+    assert loaded.trusted_proxies == "10.42.0.0/16,192.0.2.7"
+    for bad in ("proxy.interno", "10.0.0.0/8,*", "300.1.1.1"):
+        with pytest.raises(ConfigError, match="OCR_MCP_TRUSTED_PROXIES"):
+            Settings.from_env(environment(OCR_MCP_TRUSTED_PROXIES=bad))
+
+
+def test_a_proxy_in_front_without_trusted_proxies_is_detected():
+    behind = environment(OCR_MCP_PUBLIC_URL="https://ocr.ejemplo.org")
+    assert Settings.from_env(behind).behind_untrusted_proxy
+    trusted = dict(behind, OCR_MCP_TRUSTED_PROXIES="10.42.0.0/16")
+    assert not Settings.from_env(trusted).behind_untrusted_proxy
+    assert not Settings.from_env(environment()).behind_untrusted_proxy

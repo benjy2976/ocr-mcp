@@ -30,8 +30,11 @@ ocr-mcp serve [--env-file RUTA]
 | `--env-file` | No | — | Archivo `KEY=VALOR` que se carga antes de leer el entorno. No pisa variables ya definidas; acepta comentarios con `#` y comillas alrededor del valor |
 
 Lee la configuración de `docs/entorno.md`, aplica las migraciones pendientes y
-sirve en `OCR_MCP_HOST:OCR_MCP_PORT` con uvicorn (`--proxy-headers`, para
-conocer la dirección real del cliente detrás de un proxy). Con
+sirve en `OCR_MCP_HOST:OCR_MCP_PORT` con uvicorn. Detrás de un proxy, la
+dirección real del cliente se toma de `X-Forwarded-For` solo si el proxy figura
+en `OCR_MCP_TRUSTED_PROXIES`; si la URL pública usa `https` sin TLS propio y la
+variable está vacía (y tampoco está `FORWARDED_ALLOW_IPS` de uvicorn), escribe
+un aviso en la salida de errores y arranca igual. Con
 `OCR_MCP_TLS_CERT` y `OCR_MCP_TLS_KEY` sirve HTTPS directamente (decisión 0008).
 
 | Código | Significado | Acción |

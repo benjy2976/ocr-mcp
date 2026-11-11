@@ -1,6 +1,6 @@
 # 0007. Cuotas por clave, modo público opcional y estadísticas de uso
 
-- **Estado:** vigente
+- **Estado:** vigente; el modo público se amplía en la decisión 0009 (claves sin OAuth en `/public/key`)
 - **Fecha:** 2026-11-05
 - **Decidió:** Walther Aguirre
 

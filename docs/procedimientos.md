@@ -196,6 +196,33 @@ curl --cacert /ruta/a/ocr-mcp-tls/ca.crt https://192.0.2.10:18040/health
 - `docker compose down` lo detiene; `restart: unless-stopped` lo vuelve a
   levantar con Docker.
 
+## Detrás de un proxy o un Ingress
+
+Con TLS en el proxy (un proxy inverso o un Ingress de Kubernetes), el servidor
+corre en HTTP detrás y `OCR_MCP_PUBLIC_URL` es la URL `https` del proxy. Para
+que los límites por dirección (intentos de inicio de sesión y claves públicas
+por día) cuenten a cada cliente por separado, el servidor tiene que creer el
+`X-Forwarded-For` del proxy:
+
+```bash
+OCR_MCP_TRUSTED_PROXIES=10.42.0.0/16    # rango de los pods del Ingress, o la IP del proxy
+```
+
+- Con `*` cree a cualquiera que le hable directo. Sirve si solo el proxy llega
+  al puerto del servidor (en Kubernetes, un `Service` sin exponer).
+- Sin la variable, el servidor arranca con un aviso y todos los clientes llegan
+  con la IP del proxy: unos pocos intentos fallidos bloquean a todos, y las
+  claves públicas del día se agotan para todos.
+- El proxy tiene que ver la IP real del cliente. Si delante hay un balanceador
+  con NAT, se configura para conservarla (por ejemplo, `externalTrafficPolicy:
+  Local` en un `Service` de Kubernetes o el protocolo PROXY).
+- El proxy enruta al servidor `/mcp`, `/.well-known/`, `/authorize`, `/token`,
+  `/register`, `/revoke`, `/login`, `/public/key`, `/u/`, `/d/` y `/admin`, o
+  directamente todo `/`.
+
+Con Docker en el propio equipo (sección anterior) no hay proxy que agregue el
+encabezado: la variable no cambia nada y el límite queda compartido.
+
 ## Términos prohibidos
 
 El repo no puede contener nombres de instituciones, terceros, equipos ni rutas

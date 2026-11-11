@@ -1,7 +1,8 @@
 """Página de inicio de sesión: el usuario pega su clave y vuelve a su cliente (decisión 0006).
 
 Si el modo público está encendido, la página ofrece además obtener una clave
-propia con la cuota pública (decisión 0007).
+propia con la cuota pública (decisión 0007), con la misma emisión que
+`/public/key` (`public_keys.py`).
 """
 
 from __future__ import annotations
@@ -12,7 +13,7 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
 from starlette.routing import Route
 
-from ocr_mcp.modules.access import keys
+from ocr_mcp.modules.access import keys, public_keys
 from ocr_mcp.modules.access.oauth import AccessProvider
 from ocr_mcp.modules.quotas import public
 from ocr_mcp.shared.db import Database
@@ -51,8 +52,7 @@ def routes(db: Database, provider: AccessProvider) -> list[Route]:
     async def public_key(request: Request) -> Response:
         form = await request.form()
         request_id = str(form.get("request", ""))
-        mode = public.load(db)
-        if not mode.enabled:
+        if not public.load(db).enabled:
             return render(
                 TEMPLATES,
                 "message.html",
@@ -62,16 +62,15 @@ def routes(db: Database, provider: AccessProvider) -> list[Route]:
             )
         if provider.pending(request_id) is None:
             return _expired()
-        address = client_address(request)
-        if not limiter.allow("public-key", address, mode.keys_per_address_per_day, 86400):
-            return _login_page(
-                db, base, request_id, "Ya obtuviste las claves públicas permitidas por hoy.", 429
-            )
-        key, secret = keys.create(db, "Clave pública", mode.limits, public=True)
+        try:
+            key, secret = public_keys.issue(db, client_address(request))
+        except public_keys.Refused as refused:
+            return _login_page(db, base, request_id, refused.message, refused.status)
         return render(
             TEMPLATES,
             "public_key.html",
             base=base,
+            mcp_url=provider.settings.resource_url,
             request_id=request_id,
             secret=secret,
             limits=key.limits,

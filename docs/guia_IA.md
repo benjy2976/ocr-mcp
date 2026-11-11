@@ -34,13 +34,15 @@ detectan solos: el índice de abajo es la referencia.
 
 ## Estado del proyecto
 
-El servidor está implementado: OAuth 2.1 con claves por usuario, las cinco
-herramientas, enlaces de subida y descarga, cuotas, modo público, estadísticas
-y panel `/admin`. Las pruebas automáticas usan un core simulado; además se
+El servidor está implementado: claves por usuario con OAuth 2.1 o como token
+Bearer, las cinco herramientas, enlaces de subida y descarga, cuotas, modo
+público con claves autoservicio (`/public/key`), estadísticas y panel
+`/admin`. Las pruebas automáticas usan un core simulado; además se
 probó de punta a punta contra un `ocr-core` 0.7.0 real con el cliente MCP
 oficial (OAuth, las cinco herramientas, descargas y aislamiento entre
-usuarios), el 2026-11-06. Falta verificarlo con cada cliente de uso diario
-(ver "Pendientes conocidos").
+usuarios), el 2026-11-06, y con la clave como token y una clave pública de
+`/public/key` (con `curl` y el cliente oficial), el 2026-11-09. Falta
+verificarlo con cada cliente de uso diario (ver "Pendientes conocidos").
 
 Al leer cualquier documento, distinguir lo implementado (con evidencia
 ejecutable), lo aprobado sin implementar y lo pendiente.
@@ -72,7 +74,8 @@ plantillas del servidor dentro de sus módulos, no una raíz frontend.
 
 | Flujo | Invariante | Fuente | Prueba |
 | --- | --- | --- | --- |
-| Autorización | Toda petición MCP exige un token OAuth para `<URL>/mcp`; borrar la clave lo revoca | Decisiones 0002 y 0006, `src/ocr_mcp/modules/access/context.md` | `tests/modules/access/test_oauth_flow.py` |
+| Autorización | Toda petición MCP exige un token OAuth para `<URL>/mcp` o la clave como token; borrar la clave revoca los dos | Decisiones 0002, 0006 y 0009, `src/ocr_mcp/modules/access/context.md` | `tests/modules/access/test_oauth_flow.py`, `tests/modules/access/test_key_as_token.py` |
+| Modo público | Claves con la cuota pública, por la página de inicio de sesión o `/public/key`, con un límite diario por dirección compartido | Decisiones 0007 y 0009 | `tests/modules/access/test_public_keys.py` |
 | Aislamiento | Cada usuario ve solo sus trabajos y subidas | `src/ocr_mcp/modules/jobs/context.md` | `test_a_user_never_sees_another_users_job_or_upload` |
 | Archivos | Entran y salen por enlace; nunca en base64 ni por rutas del servidor | Decisión 0003, `src/ocr_mcp/modules/files/context.md` | `tests/modules/files/test_links.py` |
 | Cuotas | Se comprueban antes de enviar; un fallo devuelve las páginas | Decisión 0007, `src/ocr_mcp/modules/quotas/context.md` | `tests/modules/quotas/test_policy.py` |

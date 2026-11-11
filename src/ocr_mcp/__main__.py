@@ -17,6 +17,11 @@ from ocr_mcp.config import ConfigError, Settings
 from ocr_mcp.shared.security import hash_password
 
 MIN_PASSWORD = 12
+PROXY_WARNING = (
+    "ocr-mcp: aviso: la URL pública usa https sin TLS propio (hay un proxy delante) y "
+    "OCR_MCP_TRUSTED_PROXIES está vacía; todos los clientes llegarán con la IP del proxy y "
+    "compartirán los límites por dirección"
+)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -46,12 +51,14 @@ def _serve(env_file: Path | None) -> int:
     except (ConfigError, OSError) as error:
         print(f"ocr-mcp: {error}", file=sys.stderr)
         return 2
-    tls = (
-        {"ssl_certfile": str(settings.tls_cert), "ssl_keyfile": str(settings.tls_key)}
-        if settings.tls_cert
-        else {}
-    )
-    uvicorn.run(build(settings), host=settings.host, port=settings.port, proxy_headers=True, **tls)
+    options: dict[str, object] = {"proxy_headers": True}
+    if settings.tls_cert:
+        options |= {"ssl_certfile": str(settings.tls_cert), "ssl_keyfile": str(settings.tls_key)}
+    if settings.trusted_proxies:
+        options["forwarded_allow_ips"] = settings.trusted_proxies
+    elif settings.behind_untrusted_proxy and not os.environ.get("FORWARDED_ALLOW_IPS"):
+        print(PROXY_WARNING, file=sys.stderr)
+    uvicorn.run(build(settings), host=settings.host, port=settings.port, **options)
     return 0
 
 

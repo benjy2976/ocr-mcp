@@ -18,7 +18,7 @@ configuración del modo público. Es lógica pura: no lee trabajos ni claves.
 | Término | Significado |
 | --- | --- |
 | Cuota | Límite de páginas por día o por mes, y de trabajos en curso, de una clave |
-| Clave pública | Clave obtenida por cualquiera en el modo público |
+| Clave pública | Clave obtenida por cualquiera en el modo público (`/public/key` o la página de inicio de sesión) |
 | Tope global | Suma diaria de páginas de todas las claves públicas |
 
 ## Actores y permisos

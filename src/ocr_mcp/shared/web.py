@@ -43,7 +43,8 @@ def render(folder: Path, name: str, status_code: int = 200, **context: Any) -> H
 
 
 def client_address(request: Request) -> str:
-    """Dirección del cliente. Detrás de un proxy, la corrige `--proxy-headers` de uvicorn."""
+    """Dirección del cliente. Detrás de un proxy, uvicorn la toma de `X-Forwarded-For` solo si el
+    proxy es de confianza (`OCR_MCP_TRUSTED_PROXIES`); si no, es la del proxy."""
     return request.client.host if request.client else "desconocida"
 
 

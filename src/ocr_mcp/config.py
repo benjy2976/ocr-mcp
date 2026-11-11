@@ -6,6 +6,7 @@ La lista de variables y su significado viven en `docs/entorno.md`.
 
 from __future__ import annotations
 
+import ipaddress
 import os
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -40,6 +41,9 @@ class Settings:
     # TLS directo, para publicar en una red local sin proxy (decisión 0008).
     tls_cert: Path | None = None
     tls_key: Path | None = None
+    # Proxies cuyo `X-Forwarded-For` se cree, para conocer la IP real del cliente
+    # (IPs o rangos CIDR separados por coma, o `*`). `None`: solo 127.0.0.1.
+    trusted_proxies: str | None = None
 
     @property
     def resource_url(self) -> str:
@@ -49,6 +53,19 @@ class Settings:
     @property
     def secure_cookies(self) -> bool:
         return self.public_url.startswith("https://")
+
+    @property
+    def behind_untrusted_proxy(self) -> bool:
+        """URL pública https sin TLS propio (hay un proxy delante) y sin proxies de confianza.
+
+        En ese caso todos los clientes llegan con la IP del proxy y comparten los
+        límites por dirección.
+        """
+        return (
+            self.public_url.startswith("https://")
+            and self.tls_cert is None
+            and self.trusted_proxies is None
+        )
 
     @classmethod
     def from_env(cls, environ: Mapping[str, str] | None = None) -> Settings:
@@ -97,7 +114,24 @@ class Settings:
             max_pages=_optional_int(env, "OCR_MCP_MAX_PAGES"),
             tls_cert=tls_cert,
             tls_key=tls_key,
+            trusted_proxies=_trusted_proxies(env.get("OCR_MCP_TRUSTED_PROXIES", "")),
         )
+
+
+def _trusted_proxies(value: str) -> str | None:
+    items = [item.strip() for item in value.split(",") if item.strip()]
+    if not items:
+        return None
+    if items == ["*"]:
+        return "*"
+    for item in items:
+        try:
+            ipaddress.ip_network(item, strict=False)
+        except ValueError:
+            raise ConfigError(
+                "OCR_MCP_TRUSTED_PROXIES admite IPs o rangos CIDR separados por coma, o `*`"
+            ) from None
+    return ",".join(items)
 
 
 def _tls(env: Mapping[str, str], public_url: str) -> tuple[Path | None, Path | None]:

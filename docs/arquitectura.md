@@ -7,9 +7,9 @@ de componentes o del flujo global se actualiza aquí en el mismo cambio.
 
 `ocr-mcp` es un servicio HTTP que habla MCP con los agentes de IA y HTTP con
 `ocr-core`. Recibe PDF por enlace, crea trabajos en el core, entrega el
-Markdown por páginas y los artefactos por enlace. Controla quién lo usa (OAuth
-2.1 con una clave por usuario) y cuánto (cuotas), y ofrece un panel mínimo de
-admin. No hace OCR y no conoce el almacenamiento de ningún otro sistema.
+Markdown por páginas y los artefactos por enlace. Controla quién lo usa (una
+clave por usuario, con OAuth 2.1 o como token directo) y cuánto (cuotas), y
+ofrece un panel mínimo de admin. No hace OCR y no conoce el almacenamiento de ningún otro sistema.
 
 ## Stack
 
@@ -44,7 +44,7 @@ flowchart LR
     end
     ocrcore["ocr-core"]
 
-    agente -- "MCP + token OAuth" --> jobs
+    agente -- "MCP + token OAuth o clave" --> jobs
     agente -- "inicio de sesión" --> access
     persona -- "subida o descarga" --> files
     admin --> panel
@@ -127,4 +127,5 @@ sequenceDiagram
 Las restricciones que gobiernan esta arquitectura están en
 `docs/decisiones/README.md`: alcance (0001), transporte y OAuth (0002),
 archivos (0003), trabajo asíncrono (0004), límites (0005), acceso y panel
-(0006) y cuotas (0007).
+(0006), cuotas (0007), TLS en una red local (0008) y clave como token con modo
+público sin OAuth (0009).

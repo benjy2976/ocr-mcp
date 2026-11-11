@@ -11,13 +11,14 @@ agente por su cuenta.
 | # | Decisión | Estado |
 | --- | --- | --- |
 | [0001](0001-cliente-generico-que-solo-recibe-y-entrega-trabajos.md) | Un cliente genérico de `ocr-core` que solo recibe y entrega trabajos | vigente |
-| [0002](0002-servicio-http-con-oauth-obligatorio.md) | Un servicio HTTP con OAuth 2.1 obligatorio, también en uso local | vigente |
+| [0002](0002-servicio-http-con-oauth-obligatorio.md) | Un servicio HTTP con OAuth 2.1 obligatorio, también en uso local | vigente, salvo el punto 2 (reemplazado por 0009) |
 | [0003](0003-archivos-por-enlace.md) | Los archivos viajan por enlace: subida de un solo uso y descarga que vence | vigente |
 | [0004](0004-trabajo-asincrono-con-ticket.md) | Trabajo asíncrono con el patrón del ticket | vigente |
 | [0005](0005-sin-limites-propios-por-defecto.md) | Sin límites propios por defecto; manda el límite del core | vigente |
-| [0006](0006-claves-de-acceso-oauth-y-panel-de-admin.md) | Acceso con una clave por usuario, OAuth 2.1 incluido y un panel mínimo de admin | vigente |
-| [0007](0007-cuotas-modo-publico-y-estadisticas.md) | Cuotas por clave, modo público opcional y estadísticas de uso | vigente |
+| [0006](0006-claves-de-acceso-oauth-y-panel-de-admin.md) | Acceso con una clave por usuario, OAuth 2.1 incluido y un panel mínimo de admin | vigente; el punto 2 se amplía en 0009 |
+| [0007](0007-cuotas-modo-publico-y-estadisticas.md) | Cuotas por clave, modo público opcional y estadísticas de uso | vigente; el modo público se amplía en 0009 |
 | [0008](0008-tls-directo-para-redes-locales.md) | TLS directo en el servidor para publicarlo en una red local | vigente |
+| [0009](0009-clave-como-token-y-modo-publico-sin-oauth.md) | La clave de acceso vale como token Bearer y el modo público entrega claves sin OAuth | vigente |
 
 ## Reglas
 

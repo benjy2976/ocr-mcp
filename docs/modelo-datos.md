@@ -100,7 +100,7 @@ relacionan con otras tablas.
 | Tabla | Campos |
 | --- | --- |
 | `admin_sessions` | `token_hash` (PK), `csrf`, `expires_at` |
-| `rate_limits` | `bucket` (por ejemplo, `login`), `subject` (hash de la dirección), `at` |
+| `rate_limits` | `bucket` (`login`, `admin-login` o `public-key`, este compartido por `/login/public` y `/public/key`), `subject` (hash de la dirección), `at` |
 | `settings` | `name` (PK), `value` (JSON) |
 | `schema_migrations` | `name` (PK), `applied_at` |
 

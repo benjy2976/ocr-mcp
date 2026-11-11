@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Clave pública de ocr-mcp{% endblock %}
+{% block content %}
+<h1>Clave pública de ocr-mcp</h1>
+<p>Este servidor ofrece claves públicas para usar su OCR desde cualquier cliente MCP, con o sin inicio de
+  sesión.</p>
+<p class="muted">Cuota de cada clave:
+  {% if limits.pages_per_day %}{{ limits.pages_per_day }} páginas por día{% endif %}
+  {% if limits.pages_per_month %}· {{ limits.pages_per_month }} por mes{% endif %}
+  {% if limits.max_active_jobs %}· {{ limits.max_active_jobs }} trabajo(s) a la vez{% endif %}.
+</p>
+<p class="muted">Lo que tu agente lea de los documentos llega al proveedor del modelo. No uses documentos con
+  datos personales o confidenciales salvo que su tratamiento lo permita.</p>
+<form method="post" action="{{ base }}/public/key" class="box">
+  <button type="submit">Obtener una clave pública</button>
+</form>
+<p class="muted">Desde un script o un agente, sin navegador:</p>
+<pre>curl -X POST {{ base }}/public/key</pre>
+<p class="muted">La respuesta, en JSON, trae la clave, la URL del servidor y la cuota.</p>
+{% endblock %}

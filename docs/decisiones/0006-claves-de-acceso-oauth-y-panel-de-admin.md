@@ -1,6 +1,6 @@
 # 0006. Acceso con una clave por usuario, OAuth 2.1 incluido y un panel mínimo de admin
 
-- **Estado:** vigente
+- **Estado:** vigente; el punto 2 se amplía en la decisión 0009 (la clave vale también como token)
 - **Fecha:** 2026-11-05
 - **Decidió:** Walther Aguirre
 

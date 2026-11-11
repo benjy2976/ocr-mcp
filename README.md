@@ -13,14 +13,16 @@ PDF buscable, el texto y el Markdown.
 ## Cómo funciona
 
 ```text
-Agente de IA ──MCP (HTTP + OAuth 2.1)──► ocr-mcp ──HTTP + token──► ocr-core
+Agente de IA ──MCP (HTTP + OAuth 2.1 o clave)──► ocr-mcp ──HTTP + token──► ocr-core
                                             ▲
                             admin ──/admin──┘  (claves, cuotas y uso)
 ```
 
-- **Un servicio HTTP con OAuth 2.1 obligatorio,** también en uso local. Cada
-  cliente inicia sesión una vez en el navegador
-  (`docs/decisiones/0002-servicio-http-con-oauth-obligatorio.md`).
+- **Un servicio HTTP con credencial obligatoria,** también en uso local. Los
+  clientes con OAuth 2.1 inician sesión una vez en el navegador; los que no,
+  como agentes y scripts, usan la clave como token
+  (`docs/decisiones/0002-servicio-http-con-oauth-obligatorio.md` y
+  `docs/decisiones/0009-clave-como-token-y-modo-publico-sin-oauth.md`).
 - **Una clave de acceso por usuario,** creada por el admin en el panel
   `/admin`, que también fija cuotas y muestra el uso de cada clave
   (`docs/decisiones/0006-claves-de-acceso-oauth-y-panel-de-admin.md` y
@@ -79,7 +81,8 @@ Después, en `http://127.0.0.1:18040/admin`:
 
 1. Crear una clave de acceso. Se muestra una sola vez.
 2. Conectar el cliente con la URL `http://127.0.0.1:18040/mcp`. En la primera
-   conexión, el navegador pide la clave.
+   conexión, el navegador pide la clave; un cliente sin OAuth la envía en
+   `Authorization: Bearer <clave>`.
 
 ## Configuración
 
@@ -96,16 +99,21 @@ usuario se fijan en el panel.
 Para ofrecerlo a toda una red local, el servidor puede servir HTTPS por sí
 mismo con un certificado de una CA local; el paso a paso está en
 [`docs/procedimientos.md`](docs/procedimientos.md), "Publicar en una red local".
-Para ponerlo en internet: `OCR_MCP_PUBLIC_URL` con `https` y un proxy inverso
-con TLS delante. Quien lo publica lo opera.
+Para ponerlo en internet: `OCR_MCP_PUBLIC_URL` con `https`, un proxy inverso
+con TLS delante y `OCR_MCP_TRUSTED_PROXIES` con la dirección del proxy
+([`docs/procedimientos.md`](docs/procedimientos.md), "Detrás de un proxy o un
+Ingress"). Quien lo publica lo opera.
 
 ## Conectar un cliente
 
-Se agrega el servidor con su URL, sin tokens en la configuración, y en la
-primera conexión el navegador pide la clave de acceso. Hay ejemplos para Claude
-Code, VS Code, Cursor, Claude Desktop y claude.ai en
+Hay dos formas, con la misma clave de acceso: agregar solo la URL y que el
+navegador pida la clave en la primera conexión (OAuth), o enviar la clave en
+`Authorization: Bearer <clave>` (clientes sin OAuth, agentes y scripts). Con el
+modo público encendido, cualquiera obtiene una clave en `/public/key`, también
+con `curl -X POST <URL pública>/public/key`. Hay ejemplos para Claude Code,
+Codex, VS Code, Cursor, Claude Desktop y claude.ai en
 [`docs/integracion-con-clientes.md`](docs/integracion-con-clientes.md). El
-panel `/admin` los muestra con la URL ya puesta.
+panel `/admin` y `/public/key` los muestran con la URL ya puesta.
 
 ## Regla de uso: datos personales
 

@@ -12,7 +12,10 @@ puede usarlas, qué devuelven y a qué módulo pertenecen. La composición está
 
 - Hay tres familias de rutas: el protocolo MCP y OAuth, que monta el SDK de MCP
   según sus especificaciones; los enlaces (`/u`, `/d`), cuya credencial es el
-  secreto de la URL; y las páginas HTML (inicio de sesión y panel).
+  secreto de la URL; y las páginas HTML (inicio de sesión, clave pública y
+  panel).
+- `/mcp` acepta como credencial un token OAuth o la clave de acceso
+  (`Authorization: Bearer ocrk_…`), según la decisión 0009.
 - Las páginas usan formularios HTML, que solo envían `GET` y `POST`: en el
   panel, actualizar y borrar son `POST` sobre una ruta con el verbo
   (`/limits`, `/delete`). Es una decisión transversal en
@@ -26,7 +29,7 @@ puede usarlas, qué devuelven y a qué módulo pertenecen. La composición está
 
 | Método | Ruta | Acceso | Tipo | Recurso o concepto | Módulo | Ruta canónica | Propósito |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `POST`, `GET`, `DELETE` | `/mcp` | Token OAuth | Protocolo MCP | Sesión MCP | SDK + `jobs` | `/mcp` | Herramientas MCP (abajo) |
+| `POST`, `GET`, `DELETE` | `/mcp` | Token OAuth o clave de acceso (`Bearer`) | Protocolo MCP | Sesión MCP | SDK + `jobs` | `/mcp` | Herramientas MCP (abajo) |
 | `GET` | `/.well-known/oauth-protected-resource/mcp` | Público | Consulta | Metadatos del recurso (RFC 9728) | SDK | — | Dice a los clientes dónde autorizarse |
 | `GET` | `/.well-known/oauth-authorization-server` | Público | Consulta | Metadatos del servidor (RFC 8414) | SDK | — | Endpoints y métodos de OAuth |
 | `POST` | `/register` | Público | Recurso canónico (crear) | Cliente OAuth (RFC 7591) | SDK + `access` | `/register` | Registro dinámico de clientes |
@@ -35,7 +38,9 @@ puede usarlas, qué devuelven y a qué módulo pertenecen. La composición está
 | `POST` | `/revoke` | Cliente OAuth | Acción OAuth | Tokens | SDK + `access` | — | Revoca un token |
 | `GET` | `/login?request=…` | Quien tiene el pedido | Proyección | Pedido pendiente | `access` | — | Página que pide la clave |
 | `POST` | `/login` | Quien tiene el pedido | Acción | Pedido pendiente | `access` | — | Aprueba el pedido con una clave y vuelve al cliente |
-| `POST` | `/login/public` | Quien tiene el pedido (modo público) | Recurso canónico (crear) | Clave pública | `access` | — | Emite una clave con la cuota pública |
+| `POST` | `/login/public` | Quien tiene el pedido (modo público) | Recurso canónico (crear) | Clave pública | `access` | `/public/key` | Emite una clave con la cuota pública y sigue el flujo OAuth |
+| `GET` | `/public/key` | Público (modo público) | Proyección | Clave pública | `access` | — | Página para obtener una clave sin OAuth |
+| `POST` | `/public/key` | Público (modo público) | Recurso canónico (crear) | Clave pública | `access` | `/public/key` | Emite una clave pública: HTML a un navegador, JSON a lo demás |
 | `PUT` | `/u/{secreto}` | Secreto del enlace | Subrecurso (actualizar) | Contenido de la subida | `files` | `PUT /u/{secreto}` | Sube el PDF, una vez |
 | `GET` | `/u/{secreto}` | Secreto del enlace | Proyección | Subida | `files` | — | Formulario para una persona |
 | `POST` | `/u/{secreto}` | Secreto del enlace | Ruta contextual | Contenido de la subida | `files` | `PUT /u/{secreto}` | El mismo efecto que `PUT`, desde el formulario |
@@ -55,7 +60,7 @@ puede usarlas, qué devuelven y a qué módulo pertenecen. La composición está
 
 | Recurso | List | Create | Get | Update | Delete | Justificación |
 | --- | --- | --- | --- | --- | --- | --- |
-| Clave de acceso | Panel `/admin` | `/admin/keys`; `/login/public` en modo público | `/admin/keys/{id}` | Solo la cuota (`/limits`); el nombre no se edita: no aplica | `/delete` | Decisiones 0006 y 0007 |
+| Clave de acceso | Panel `/admin` | `/admin/keys`; `/public/key` y `/login/public` en modo público | `/admin/keys/{id}` | Solo la cuota (`/limits`); el nombre no se edita: no aplica | `/delete` | Decisiones 0006, 0007 y 0009 |
 | Subida | No aplica: cada usuario la conoce por su enlace | Herramienta `ocr_upload_link` | `GET /u/{secreto}` | `PUT` una vez | No aplica: vence sola | Decisión 0003 |
 | Modo público | No aplica (singleton) | No aplica | Dentro de `/admin` | `/admin/public` | No aplica: se apaga | Decisión 0007 |
 | Cliente OAuth | No expuesto | `/register` | No expuesto | No expuesto | No expuesto | RFC 7592 no implementado; no hace falta para los clientes MCP |
@@ -63,8 +68,9 @@ puede usarlas, qué devuelven y a qué módulo pertenecen. La composición está
 
 ## Herramientas MCP (sobre `/mcp`)
 
-Exigen un token OAuth con el alcance `ocr`. El usuario es el `subject` del
-token. Las reglas están en `src/ocr_mcp/modules/jobs/context.md`; el esquema
+Exigen un token OAuth con el alcance `ocr` o una clave de acceso como token
+Bearer (decisión 0009). El usuario es el `subject`: el identificador de la
+clave, en los dos casos. Las reglas están en `src/ocr_mcp/modules/jobs/context.md`; el esquema
 exacto lo publica el servidor (`tools/list`).
 
 | Herramienta | Entrada | Resultado |
@@ -96,7 +102,23 @@ Formulario con `request` (el pedido pendiente) y `key`.
 | --- | --- |
 | `200` | Página con la clave pública nueva, que se muestra una sola vez |
 | `404` | El modo público está apagado |
-| `429` | La dirección ya obtuvo las claves permitidas hoy |
+| `429` | La dirección ya obtuvo las claves permitidas hoy (límite compartido con `/public/key`) |
+
+### `GET /public/key` y `POST /public/key`
+
+`GET` muestra una página con la cuota pública y el botón para obtener una
+clave. `POST` emite la clave, sin cuerpo: responde HTML si el encabezado
+`Accept` incluye `text/html` (un navegador) y JSON en cualquier otro caso
+(`curl -X POST <URL>/public/key`).
+
+| Estado | Cuándo | Forma |
+| --- | --- | --- |
+| `201` | Clave pública nueva (JSON) | `{"key", "mcp_url", "header", "limits"}`, con `Cache-Control: no-store` |
+| `200` | Clave pública nueva (HTML) | Página con la clave y los ejemplos de configuración de clientes |
+| `404` | El modo público está apagado | `{"error": …}` o página |
+| `429` | La dirección ya obtuvo las claves permitidas hoy (límite compartido con `/login/public`) | `{"error": …}` o página |
+
+La clave se muestra una sola vez y vale como token Bearer en `/mcp`.
 
 ### `PUT /u/{secreto}` y `POST /u/{secreto}`
 
