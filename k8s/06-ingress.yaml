@@ -55,6 +55,13 @@ spec:
                 name: ocr-mcp
                 port:
                   number: 18040
+          - path: /public
+            pathType: Prefix
+            backend:
+              service:
+                name: ocr-mcp
+                port:
+                  number: 18040
           - path: /.well-known
             pathType: Prefix
             backend:

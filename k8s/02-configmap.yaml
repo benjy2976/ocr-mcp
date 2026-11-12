@@ -13,3 +13,5 @@ data:
   OCR_MCP_HOST: "0.0.0.0"
   OCR_MCP_DATA_DIR: "/data"
   OCR_MCP_ADMIN_USER: "admin"
+  OCR_MCP_TRUSTED_PROXIES: "*"
+  FORWARDED_ALLOW_IPS: "*"
